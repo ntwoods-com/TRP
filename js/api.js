@@ -70,8 +70,27 @@ async function fetchRequirements() {
     return;
   }
 
+  async function fetchRequirements() {
+  const user = getCurrentUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
   return apiGet("list_requirements", {
-    email: encodeURIComponent(user.email)
+    email: user.email   // ❌ encode nahi karna yahan
+  });
+}
+
+async function fetchJobTemplates() {
+  const user = getCurrentUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  return apiGet("list_job_templates", {
+    email: user.email
   });
 }
 
