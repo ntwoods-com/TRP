@@ -5,6 +5,8 @@
   - Dashboard loader
   - Requirements screen (Phase-1)
 **************************************************/
+// Requirements ko memory me rakhne ke liye
+let globalRequirements = [];
 
 function getCurrentUserOrRedirect() {
   const user = getCurrentUser();
