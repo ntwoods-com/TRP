@@ -1,0 +1,496 @@
+/*************************************************
+  NT Woods HRMS
+  Global UI Theme - style.css
+**************************************************/
+
+/* =========================
+   RESET + BASE
+========================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f4f6fb;
+  color: #1f2933;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
+}
+
+/* =========================
+   LOGIN PAGE
+========================= */
+
+.login-card {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top left, #e0edff 0, #f4f6fb 45%, #ffffff 100%);
+}
+
+.login-card h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #1b4d9a;
+}
+
+.login-card p {
+  margin-bottom: 1.5rem;
+  color: #52606d;
+}
+
+/* =========================
+   LAYOUT: NAVBAR + SIDEBAR
+========================= */
+
+#navbar {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e7f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.nav-left .app-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1b4d9a;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  text-align: right;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2933;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: #7b8794;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e1effe;
+  color: #1b4d9a;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Sidebar + Content wrapper */
+
+#sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #e1e7f0;
+  padding-top: 8px;
+  padding-bottom: 16px;
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.content {
+  margin-top: 56px;
+  margin-left: 220px;
+  padding: 16px 20px 24px;
+}
+
+/* Sidebar menu */
+
+.sidebar-menu {
+  list-style: none;
+  padding: 8px 0;
+}
+
+.sidebar-menu li {
+  margin: 4px 0;
+}
+
+.sidebar-menu li a {
+  display: block;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: #425a70;
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.sidebar-menu li a:hover {
+  background: #f0f5ff;
+  color: #1b4d9a;
+}
+
+.sidebar-menu li.active a {
+  background: #e1effe;
+  color: #1b4d9a;
+  border-left-color: #1b4d9a;
+  font-weight: 600;
+}
+
+/* =========================
+   CONTENT AREA BASICS
+========================= */
+
+.content h2 {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  color: #1f2933;
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #1f2933;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-small {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Primary */
+.btn-primary {
+  background: #1b4d9a;
+  color: white;
+  box-shadow: 0 2px 4px rgba(27, 77, 154, 0.25);
+}
+
+.btn-primary:hover {
+  background: #153a73;
+}
+
+/* Secondary */
+.btn-secondary {
+  background: #f0f5ff;
+  color: #1b4d9a;
+}
+
+.btn-secondary:hover {
+  background: #e1effe;
+}
+
+/* Outline */
+.btn-outline {
+  background: transparent;
+  border: 1px solid #d8e2ef;
+  color: #52606d;
+}
+
+.btn-outline:hover {
+  background: #f5f7fa;
+}
+
+/* Small */
+.btn-small {
+  background: #f0f5ff;
+  color: #1b4d9a;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.btn-small:hover {
+  background: #e1effe;
+}
+
+/* Default HTML button override */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   DASHBOARD TILES
+========================= */
+
+#tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.tile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 14px 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e1e7f0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.tile-card h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+  color: #1b4d9a;
+}
+
+.tile-card p {
+  font-size: 0.85rem;
+  color: #52606d;
+}
+
+.tile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+  border-color: #c3dafe;
+}
+
+/* =========================
+   TABLE STYLING
+========================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  margin-top: 12px;
+}
+
+table thead {
+  background: #f0f5ff;
+}
+
+table th,
+table td {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #e1e7f0;
+  text-align: left;
+}
+
+table th {
+  font-weight: 600;
+  color: #425a70;
+}
+
+table tr:nth-child(even) td {
+  background: #fafbff;
+}
+
+table tr:last-child td {
+  border-bottom: none;
+}
+
+table td button {
+  margin-right: 4px;
+}
+
+/* Empty / error state */
+table td[colspan] {
+  text-align: center;
+  padding: 16px;
+}
+
+/* =========================
+   FORMS / INPUTS
+========================= */
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #52606d;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d8e2ef;
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: 10px;
+  background: #ffffff;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #1b4d9a;
+  box-shadow: 0 0 0 1px rgba(27, 77, 154, 0.15);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modal {
+  width: 95%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 18px 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+  animation: modalIn 0.18s ease-out;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #1b4d9a;
+}
+
+.modal-actions {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Modal animation */
+@keyframes modalIn {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* =========================
+   STATUS BADGES (future use)
+========================= */
+
+.badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge-green {
+  background: #e3f9e5;
+  color: #2d7a46;
+}
+
+.badge-red {
+  background: #ffebe8;
+  color: #c23030;
+}
+
+.badge-amber {
+  background: #fff4e5;
+  color: #ad5e00;
+}
+
+.badge-blue {
+  background: #e1effe;
+  color: #1b4d9a;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  #sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #e1e7f0;
+  }
+
+  .content {
+    margin-left: 0;
+    padding: 12px 12px 20px;
+  }
+
+  #navbar {
+    padding: 0 10px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .user-email {
+    display: none; /* mobile pe thoda compact */
+  }
+
+  #tiles {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  table th, table td {
+    padding: 6px 8px;
+  }
+}
