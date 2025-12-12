@@ -3,10 +3,9 @@
 <head>
   <title>NT Woods HRMS - Login</title>
 
-  <!-- ✅ Correct CSS path (assuming /TRP/css/style.css) -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- ✅ Google Identity Services script (Yahi ek script hai jo Google se aayega) -->
+  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
@@ -18,16 +17,14 @@
     <div id="gSignInDiv"></div>
   </div>
 
-  <!-- ✅ Tumhara apna JS -->
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
 
   <script>
-    // 👉 yahan REAL Client ID daalna (ye sirf STRING hai, URL nahi)
+    // 👇 Yahan apna REAL Google OAuth Client ID daalo
     const HRMS_CLIENT_ID = "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com";
 
     window.addEventListener("load", function () {
-      // check if identity script successfully loaded
       if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
         console.error("Google Identity script not loaded properly.");
         alert("Google Sign-In load nahi ho paya. Network ya ad-block check karo.");
