@@ -1,15 +1,12 @@
 /*************************************************
   NT Woods HRMS - ui.js
-  - Navbar + Sidebar
-  - Role-based menu
-  - Dashboard loader
-  - Requirements screen (Phase-1)
 **************************************************/
-// Requirements ko memory me rakhne ke liye
-// Global state
-let globalRequirements = [];   // list_requirements ka data
-let reqModalEl = null;         // current open modal reference
 
+// Global state
+let reqModalEl = null;
+let globalRequirements = [];
+
+/* ---------- Basic layout helpers ---------- */
 
 function getCurrentUserOrRedirect() {
   const user = getCurrentUser();
@@ -29,10 +26,10 @@ function renderNavbar() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
-  const navbar = document.getElementById("navbar");
-  if (!navbar) return;
+  const nav = document.getElementById("navbar");
+  if (!nav) return;
 
-  navbar.innerHTML = `
+  nav.innerHTML = `
     <div class="nav-left">
       <span class="app-title">NT Woods HRMS</span>
     </div>
@@ -67,7 +64,6 @@ const SIDEBAR_MODULES = [
 function hasViewPermission(user, moduleKey) {
   if (moduleKey === "DASHBOARD") return true;
   if (user.role === "ADMIN") return true;
-
   if (!user.permissions || !Array.isArray(user.permissions)) return false;
 
   return user.permissions.some(p =>
@@ -80,26 +76,20 @@ function renderSidebar() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
-  const sidebar = document.getElementById("sidebar");
-  if (!sidebar) return;
+  const side = document.getElementById("sidebar");
+  if (!side) return;
 
-  const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+  const current = window.location.pathname.split("/").pop() || "dashboard.html";
 
   let html = `<ul class="sidebar-menu">`;
-
-  SIDEBAR_MODULES.forEach(mod => {
-    if (!hasViewPermission(user, mod.key)) return;
-
-    const active = currentPage === mod.href ? "active" : "";
-    html += `
-      <li class="${active}">
-        <a href="${mod.href}">${mod.label}</a>
-      </li>
-    `;
+  SIDEBAR_MODULES.forEach(m => {
+    if (!hasViewPermission(user, m.key)) return;
+    const active = current === m.href ? "active" : "";
+    html += `<li class="${active}"><a href="${m.href}">${m.label}</a></li>`;
   });
-
   html += `</ul>`;
-  sidebar.innerHTML = html;
+
+  side.innerHTML = html;
 }
 
 function initLayout() {
@@ -107,7 +97,7 @@ function initLayout() {
   renderSidebar();
 }
 
-/* DASHBOARD */
+/* ---------- Dashboard ---------- */
 
 function loadDashboard() {
   const user = getCurrentUserOrRedirect();
@@ -115,53 +105,41 @@ function loadDashboard() {
 
   initLayout();
 
-  const tilesContainer = document.getElementById("tiles");
-  if (!tilesContainer) return;
+  const container = document.getElementById("tiles");
+  if (!container) return;
 
   let tiles = [];
 
   if (user.role === "EA") {
     tiles = [
       { title: "Raise Requirement", desc: "Create new hiring requirement", action: "requirements.html" },
-      { title: "Incomplete Requirements", desc: "Draft / Sent Back", action: "requirements.html" },
+      { title: "Incomplete Requirements", desc: "Draft / Send Back", action: "requirements.html" },
       { title: "Requirements in Validation", desc: "Pending with HR", action: "requirements.html" },
-      { title: "Requirements Validated", desc: "Ready for Job Posting", action: "requirements.html" }
+      { title: "Validated Requirements", desc: "Ready for job posting", action: "requirements.html" }
     ];
   } else if (user.role === "HR") {
     tiles = [
       { title: "Pending Requirements", desc: "Requirements to validate", action: "requirements.html" },
-      { title: "Job Posting – Pending", desc: "Post jobs to portals", action: "jobposting.html" },
-      { title: "New CVs", desc: "Fresh applicants", action: "cvupload.html" },
-      { title: "Shortlisting – Pending", desc: "CV shortlisting", action: "applicants_shortlisting.html" },
-      { title: "On-Call – Pending", desc: "Call and screen candidates", action: "oncall.html" },
-      { title: "Owners Discussion – Pending", desc: "Move candidates to walk-ins", action: "owners_discussion.html" },
-      { title: "Interviews to Schedule", desc: "Call & schedule walk-ins", action: "schedule_interviews.html" },
-      { title: "Today’s Walk-ins", desc: "Manage today’s candidates", action: "walkins.html" },
-      { title: "Tests Pending", desc: "Enter test marks", action: "tests.html" },
-      { title: "Offers / Documents Pending", desc: "Move towards joining", action: "offers_documents.html" }
+      { title: "Job Posting – Pending", desc: "Post jobs on portals", action: "jobposting.html" },
+      { title: "New CVs", desc: "Fresh CVs uploaded", action: "cvupload.html" }
     ];
   } else if (user.role === "ADMIN") {
     tiles = [
-      { title: "Admin - Manage Users", desc: "Add / Edit users", action: "admin.html" },
-      { title: "Admin - Permissions", desc: "Role based module access", action: "admin.html" },
-      { title: "Job Templates", desc: "Manage job profiles", action: "admin.html" },
-      { title: "Reports / Analytics", desc: "View hiring stats", action: "#" },
-      { title: "Requirements", desc: "Full control over requirements", action: "requirements.html" },
-      { title: "Job Posting", desc: "Job posting status", action: "jobposting.html" }
+      { title: "Manage Users", desc: "Add / Edit HRMS users", action: "admin.html" },
+      { title: "Manage Permissions", desc: "Role-wise module access", action: "admin.html" },
+      { title: "Requirements", desc: "Monitor all requirements", action: "requirements.html" }
     ];
   }
 
-  tilesContainer.innerHTML = tiles
-    .map(t => `
-      <div class="tile-card" onclick="location.href='${t.action}'">
-        <h3>${t.title}</h3>
-        <p>${t.desc}</p>
-      </div>
-    `)
-    .join("");
+  container.innerHTML = tiles.map(t => `
+    <div class="tile-card" onclick="location.href='${t.action}'">
+      <h3>${t.title}</h3>
+      <p>${t.desc}</p>
+    </div>
+  `).join("");
 }
 
-/* REQUIREMENTS PAGE */
+/* ---------- Requirements list ---------- */
 
 async function loadRequirements() {
   const user = getCurrentUserOrRedirect();
@@ -171,7 +149,6 @@ async function loadRequirements() {
 
   const table = document.getElementById("reqTable");
   if (!table) return;
-
   table.innerHTML = `<tr><td>Loading...</td></tr>`;
 
   try {
@@ -182,10 +159,9 @@ async function loadRequirements() {
     }
 
     const rows = res.data || [];
-    // 🔴 yahan global me save kar rahe hain
     globalRequirements = rows;
 
-    if (rows.length === 0) {
+    if (!rows.length) {
       table.innerHTML = `<tr><td>No requirements found</td></tr>`;
       return;
     }
@@ -202,36 +178,26 @@ async function loadRequirements() {
 
     let html = "<thead><tr>";
     headers.forEach(h => html += `<th>${h}</th>`);
-    html += `<th>Actions</th>`;
-    html += "</tr></thead><tbody>";
+    html += "<th>Actions</th></tr></thead><tbody>";
 
     rows.forEach(r => {
       html += "<tr>";
       headers.forEach(h => {
-        let val = r[h] || "";
-        if (h === "RaisedAt" && val) {
-          try { val = new Date(val).toLocaleString(); } catch (e) {}
+        let v = r[h] || "";
+        if (h === "RaisedAt" && v) {
+          try { v = new Date(v).toLocaleString(); } catch (e) {}
         }
-        html += `<td>${val}</td>`;
+        html += `<td>${v}</td>`;
       });
 
-      // 🔴 yahan alert ki jagah proper functions
-      let actions = "";
-      if (user.role === "EA" && (r.Status === "DRAFT" || r.Status === "HR_SENDBACK")) {
-        actions += `
-          <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
-            Edit &amp; View
-          </button>
-        `;
-      } else {
-        actions += `
-          <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
-            View
-          </button>
-        `;
-      }
+      const canEdit = (user.role === "EA" &&
+        (r.Status === "DRAFT" || r.Status === "HR_SENDBACK"));
 
-      html += `<td>${actions}</td>`;
+      html += `<td>
+        <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
+          ${canEdit ? "Edit &amp; View" : "View"}
+        </button>
+      </td>`;
       html += "</tr>";
     });
 
@@ -244,18 +210,77 @@ async function loadRequirements() {
   }
 }
 
+/* ---------- Requirement create modal ---------- */
+
+function openCreateReq() {
+  const user = getCurrentUserOrRedirect();
+  if (!user) return;
+  if (user.role !== "EA") {
+    alert("Sirf EA requirement raise kar sakta hai.");
+    return;
+  }
+
+  closeReqModal(); // koi purana modal ho to band
+
+  reqModalEl = document.createElement("div");
+  reqModalEl.className = "modal-backdrop";
+  reqModalEl.innerHTML = `
+    <div class="modal">
+      <h3>Raise New Requirement</h3>
+
+      <label>Job Role Key</label>
+      <input type="text" id="reqJobRoleKey" placeholder="CRM / MIS / JR_ACCOUNTANT">
+
+      <label>Job Title</label>
+      <input type="text" id="reqJobTitle" placeholder="Customer Relationship Manager">
+
+      <label>Roles & Responsibilities</label>
+      <textarea id="reqRR" rows="3"></textarea>
+
+      <label>Must Have Skills</label>
+      <textarea id="reqSkills" rows="3"></textarea>
+
+      <label>Shift</label>
+      <input type="text" id="reqShift">
+
+      <label>Pay Scale</label>
+      <input type="text" id="reqPay">
+
+      <label>Perks</label>
+      <input type="text" id="reqPerks">
+
+      <label>Notes</label>
+      <textarea id="reqNotes" rows="2"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeReqModal()">Cancel</button>
+        <button class="btn-secondary" onclick="saveRequirement('DRAFT')">Save as Draft</button>
+        <button class="btn-primary" onclick="saveRequirement('SENT_TO_HR')">Submit to HR</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(reqModalEl);
+}
+
+function closeReqModal() {
+  if (reqModalEl) {
+    reqModalEl.remove();
+    reqModalEl = null;
+  }
+}
+
 async function saveRequirement(status) {
   const jobRoleKey = document.getElementById("reqJobRoleKey").value.trim();
-  const jobTitle = document.getElementById("reqJobTitle").value.trim();
-  const rr = document.getElementById("reqRR").value.trim();
-  const skills = document.getElementById("reqSkills").value.trim();
-  const shift = document.getElementById("reqShift").value.trim();
-  const pay = document.getElementById("reqPay").value.trim();
-  const perks = document.getElementById("reqPerks").value.trim();
-  const notes = document.getElementById("reqNotes").value.trim();
+  const jobTitle   = document.getElementById("reqJobTitle").value.trim();
+  const rr         = document.getElementById("reqRR").value.trim();
+  const skills     = document.getElementById("reqSkills").value.trim();
+  const shift      = document.getElementById("reqShift").value.trim();
+  const pay        = document.getElementById("reqPay").value.trim();
+  const perks      = document.getElementById("reqPerks").value.trim();
+  const notes      = document.getElementById("reqNotes").value.trim();
 
   if (!jobRoleKey || !jobTitle) {
-    alert("Job Role Key aur Job Title mandatory hai.");
+    alert("Job Role Key aur Job Title required hai.");
     return;
   }
 
@@ -274,51 +299,36 @@ async function saveRequirement(status) {
 
     console.log("createRequirement response:", res);
 
-    // agar response hi nahi mila:
-    if (!res) {
-      alert("Error: Server ne koi response nahi diya.");
+    if (res && res.success === false) {
+      alert("Error: " + (res.error || "Unable to save requirement"));
       return;
-    }
-
-    // agar backend ne success:false bheja:
-    if (res.success === false) {
-      alert("Error: " + (res.error || "Backend error while saving requirement"));
-      return;
-    }
-
-    // agar success field hi nahi hai, fir bhi sheet me row aa rahi hai:
-    // to isko success treat kar dete hain
-    if (res.success === undefined) {
-      console.warn("No success flag in response, but assuming OK:", res);
     }
 
     alert("Requirement saved successfully.");
     closeReqModal();
-    if (typeof loadRequirements === "function") {
-      loadRequirements();
-    }
-  } catch (err) {
-    console.error("saveRequirement error:", err);
+    loadRequirements();
+
+  } catch (e) {
+    console.error(e);
     alert("Unexpected error while saving requirement.");
   }
 }
+
+/* ---------- Requirement detail modal ---------- */
+
 function openRequirementDetail(reqId) {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
   const req = (globalRequirements || []).find(r => r.RequirementId === reqId);
   if (!req) {
-    alert("Requirement data not found for: " + reqId);
+    alert("Requirement data not found: " + reqId);
     return;
   }
 
-  // Pehle se agar koi modal open hai to remove
-  if (reqModalEl) {
-    reqModalEl.remove();
-    reqModalEl = null;
-  }
+  closeReqModal();
 
-  const safe = (v) => v == null ? "" : String(v);
+  const safe = v => (v == null ? "" : String(v));
 
   reqModalEl = document.createElement("div");
   reqModalEl.className = "modal-backdrop";
@@ -380,16 +390,8 @@ function openRequirementDetail(reqId) {
 
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeReqModal()">Close</button>
-        ${
-          (user.role === "EA" && (req.Status === "DRAFT" || req.Status === "HR_SENDBACK"))
-            ? `<button class="btn-primary" onclick="alert('Edit flow abhi pending hai, baad me implement karenge.')">
-                 Edit &amp; Resubmit
-               </button>`
-            : ""
-        }
       </div>
     </div>
   `;
-
   document.body.appendChild(reqModalEl);
 }
