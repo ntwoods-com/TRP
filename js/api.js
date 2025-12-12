@@ -3,7 +3,7 @@
 **************************************************/
 
 // 👇 yahan apna latest Web App EXEC URL daalo
-const GAS_WEB_URL = "PUT_YOUR_EXEC_URL_HERE";
+const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
 
 /* ---------- Current user helpers ---------- */
 
