@@ -2,14 +2,11 @@
 <html>
 <head>
   <title>NT Woods HRMS - Login</title>
-
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-
-<body>
+<body class="login-body">
 
   <div class="login-card">
     <h2>NT Woods HRMS</h2>
@@ -19,15 +16,14 @@
 
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
-
   <script>
-    // 👇 Yahan apna REAL Google OAuth Client ID daalo
+    // 👇 yahan apna real OAuth Client ID daalo
     const HRMS_CLIENT_ID = "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com";
 
     window.addEventListener("load", function () {
-      if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
-        console.error("Google Identity script not loaded properly.");
-        alert("Google Sign-In load nahi ho paya. Network ya ad-block check karo.");
+      if (!window.google || !google.accounts || !google.accounts.id) {
+        console.error("Google Identity script not loaded.");
+        alert("Google Sign-In load nahi ho paaya. Network / adblock check karo.");
         return;
       }
 
@@ -42,6 +38,5 @@
       );
     });
   </script>
-
 </body>
 </html>
