@@ -1,79 +1,59 @@
-/*************************************************
-  NT Woods HRMS
-  Global UI Theme - style.css
-**************************************************/
-
-/* =========================
-   RESET + BASE
-========================= */
+/* Basic reset */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-html, body {
-  height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+body {
   background: #f4f6fb;
   color: #1f2933;
 }
 
-body {
+/* Login */
+.login-body {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
-
-/* Utility */
-.hidden {
-  display: none !important;
-}
-
-/* =========================
-   LOGIN PAGE
-========================= */
 
 .login-card {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(circle at top left, #e0edff 0, #f4f6fb 45%, #ffffff 100%);
+  background: #ffffff;
+  padding: 32px 40px;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
+  text-align: center;
 }
 
 .login-card h2 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #1b4d9a;
+  margin-bottom: 8px;
 }
 
 .login-card p {
-  margin-bottom: 1.5rem;
-  color: #52606d;
+  margin-bottom: 20px;
 }
 
-/* =========================
-   LAYOUT: NAVBAR + SIDEBAR
-========================= */
-
+/* Layout */
 #navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 56px;
   background: #ffffff;
-  border-bottom: 1px solid #e1e7f0;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 10;
 }
 
 .nav-left .app-title {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #1b4d9a;
+  font-weight: 600;
+  color: #1d4ed8;
 }
 
 .nav-right {
@@ -84,413 +64,262 @@ body {
 
 .user-info {
   text-align: right;
+  font-size: 12px;
 }
 
 .user-name {
-  font-size: 0.9rem;
   font-weight: 600;
-  color: #1f2933;
 }
 
 .user-email {
-  font-size: 0.8rem;
-  color: #7b8794;
+  color: #6b7280;
 }
 
 .role-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
-  background: #e1effe;
-  color: #1b4d9a;
-  font-size: 0.75rem;
+  background: #e0f2fe;
+  color: #1d4ed8;
+  font-size: 11px;
   font-weight: 600;
 }
 
-/* Sidebar + Content wrapper */
-
 #sidebar {
-  width: 220px;
-  background: #ffffff;
-  border-right: 1px solid #e1e7f0;
-  padding-top: 8px;
-  padding-bottom: 16px;
   position: fixed;
   top: 56px;
+  left: 0;
   bottom: 0;
-  overflow-y: auto;
+  width: 190px;
+  background: #111827;
+  color: #e5e7eb;
+  padding-top: 12px;
 }
-
-.content {
-  margin-top: 56px;
-  margin-left: 220px;
-  padding: 16px 20px 24px;
-}
-
-/* Sidebar menu */
 
 .sidebar-menu {
   list-style: none;
-  padding: 8px 0;
-}
-
-.sidebar-menu li {
-  margin: 4px 0;
 }
 
 .sidebar-menu li a {
   display: block;
-  padding: 8px 16px;
+  padding: 10px 16px;
+  color: #d1d5db;
   text-decoration: none;
-  font-size: 0.9rem;
-  color: #425a70;
-  border-left: 3px solid transparent;
-  transition: all 0.15s ease;
+  font-size: 14px;
 }
 
+.sidebar-menu li.active a,
 .sidebar-menu li a:hover {
-  background: #f0f5ff;
-  color: #1b4d9a;
+  background: #1d4ed8;
+  color: #ffffff;
 }
 
-.sidebar-menu li.active a {
-  background: #e1effe;
-  color: #1b4d9a;
-  border-left-color: #1b4d9a;
-  font-weight: 600;
+.content {
+  margin-top: 56px;
+  margin-left: 190px;
+  padding: 24px 32px;
 }
-
-/* =========================
-   CONTENT AREA BASICS
-========================= */
 
 .content h2 {
-  font-size: 1.4rem;
   margin-bottom: 16px;
-  color: #1f2933;
 }
 
-.content h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  color: #1f2933;
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
+/* Buttons */
 button {
-  cursor: pointer;
   border: none;
-  outline: none;
+  cursor: pointer;
 }
 
-.btn-primary,
-.btn-secondary,
-.btn-outline,
-.btn-small {
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-/* Primary */
 .btn-primary {
-  background: #1b4d9a;
+  background: #1d4ed8;
   color: white;
-  box-shadow: 0 2px 4px rgba(27, 77, 154, 0.25);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  margin-bottom: 16px;
 }
 
-.btn-primary:hover {
-  background: #153a73;
-}
-
-/* Secondary */
 .btn-secondary {
-  background: #f0f5ff;
-  color: #1b4d9a;
+  background: #0ea5e9;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
 }
 
-.btn-secondary:hover {
-  background: #e1effe;
-}
-
-/* Outline */
 .btn-outline {
   background: transparent;
-  border: 1px solid #d8e2ef;
-  color: #52606d;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
 }
 
-.btn-outline:hover {
-  background: #f5f7fa;
-}
-
-/* Small */
 .btn-small {
-  background: #f0f5ff;
-  color: #1b4d9a;
+  background: #1d4ed8;
+  color: #ffffff;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 12px;
 }
 
-.btn-small:hover {
-  background: #e1effe;
-}
-
-/* Default HTML button override */
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* =========================
-   DASHBOARD TILES
-========================= */
-
+/* Tiles */
 #tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
 .tile-card {
   background: #ffffff;
+  padding: 14px 16px;
   border-radius: 12px;
-  padding: 14px 14px 16px;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-  border: 1px solid #e1e7f0;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .tile-card h3 {
-  font-size: 1rem;
+  font-size: 15px;
   margin-bottom: 6px;
-  color: #1b4d9a;
 }
 
 .tile-card p {
-  font-size: 0.85rem;
-  color: #52606d;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .tile-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
-  border-color: #c3dafe;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 }
 
-/* =========================
-   TABLE STYLING
-========================= */
-
+/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
   background: #ffffff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
-  margin-top: 12px;
-}
-
-table thead {
-  background: #f0f5ff;
+  font-size: 13px;
 }
 
 table th,
 table td {
   padding: 8px 10px;
-  font-size: 0.85rem;
-  border-bottom: 1px solid #e1e7f0;
-  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 table th {
+  background: #f3f4f6;
+  text-align: left;
   font-weight: 600;
-  color: #425a70;
+  font-size: 12px;
 }
 
-table tr:nth-child(even) td {
-  background: #fafbff;
-}
-
-table tr:last-child td {
-  border-bottom: none;
-}
-
-table td button {
-  margin-right: 4px;
-}
-
-/* Empty / error state */
-table td[colspan] {
-  text-align: center;
-  padding: 16px;
-}
-
-/* =========================
-   FORMS / INPUTS
-========================= */
-
-label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #52606d;
-}
-
-input[type="text"],
-input[type="date"],
-input[type="time"],
-input[type="number"],
-textarea,
-select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #d8e2ef;
-  font-size: 0.85rem;
-  outline: none;
-  margin-bottom: 10px;
-  background: #ffffff;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #1b4d9a;
-  box-shadow: 0 0 0 1px rgba(27, 77, 154, 0.15);
-}
-
-/* =========================
-   MODAL
-========================= */
-
+/* Modal */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.45);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 50;
 }
 
 .modal {
-  width: 95%;
-  max-width: 480px;
   background: #ffffff;
-  border-radius: 14px;
-  padding: 16px 18px 14px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
-  animation: modalIn 0.18s ease-out;
+  border-radius: 16px;
+  padding: 18px 20px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .modal h3 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-  color: #1b4d9a;
+  margin-bottom: 12px;
+}
+
+.modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.modal textarea {
+  resize: vertical;
 }
 
 .modal-actions {
-  margin-top: 4px;
+  margin-top: 14px;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-/* Modal animation */
-@keyframes modalIn {
-  from {
-    transform: translateY(8px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Wide detail modal */
+.modal-wide {
+  max-width: 800px;
 }
 
-/* =========================
-   STATUS BADGES (future use)
-========================= */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.field-value {
+  background: #f4f6fb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.field-box {
+  background: #f4f6fb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.field-box.multi {
+  white-space: pre-line;
+}
 
 .badge {
-  display: inline-flex;
-  padding: 2px 8px;
+  display: inline-block;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 11px;
   font-weight: 600;
 }
 
-.badge-green {
-  background: #e3f9e5;
-  color: #2d7a46;
+.badge.status-sent_to_hr {
+  background: #e0f2fe;
+  color: #1d4ed8;
 }
 
-.badge-red {
-  background: #ffebe8;
-  color: #c23030;
+.badge.status-draft {
+  background: #fef9c3;
+  color: #854d0e;
 }
 
-.badge-amber {
-  background: #fff4e5;
-  color: #ad5e00;
-}
-
-.badge-blue {
-  background: #e1effe;
-  color: #1b4d9a;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 768px) {
-
-  #sidebar {
-    position: static;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #e1e7f0;
-  }
-
-  .content {
-    margin-left: 0;
-    padding: 12px 12px 20px;
-  }
-
-  #navbar {
-    padding: 0 10px;
-  }
-
-  .nav-right {
-    gap: 8px;
-  }
-
-  .user-email {
-    display: none; /* mobile pe thoda compact */
-  }
-
-  #tiles {
-    grid-template-columns: 1fr;
-  }
-
-  table {
-    font-size: 0.8rem;
-  }
-
-  table th, table td {
-    padding: 6px 8px;
-  }
+.badge.status-hr_sendback {
+  background: #fee2e2;
+  color: #b91c1c;
 }
