@@ -5,7 +5,7 @@
 **************************************************/
 
 // 👉 Yahan apna deployed Web App URL daalo (EXEC URL)
-const GAS_WEB_URL = "PUT_YOUR_WEB_APP_EXEC_URL_HERE";
+const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
 
 /**
  * Logged-in user ko localStorage se nikaalne ka helper
