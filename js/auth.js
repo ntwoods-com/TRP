@@ -1,12 +1,18 @@
+/*************************************************
+  NT Woods HRMS - auth.js
+  - Google Login callback
+**************************************************/
+
 async function handleGoogleLogin(response) {
   const user = decodeJwt(response.credential);
 
   const backend = await fetch(
-    GAS_WEB_URL + "?action=login&email=" + user.email
+    GAS_WEB_URL + "?action=login&email=" + encodeURIComponent(user.email)
   ).then(r => r.json());
 
   if (!backend.success) {
-    alert("Access Denied: You are not authorized");
+    alert("Login failed: " + (backend.error || "You are not authorized"));
+    console.log("LOGIN_BACKEND_RESPONSE", backend);
     return;
   }
 
