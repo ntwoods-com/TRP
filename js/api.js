@@ -16,17 +16,23 @@ async function apiGet(action, params = {}) {
 
 // POST request wrapper
 async function apiPost(action, body = {}) {
-  body.action = action;
+  const payload = { ...body, action };
 
-  const res = await fetch(API_BASE, {
-    method: "POST",
-    mode: "no-cors", // YOU ASKED FOR THIS
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+  try {
+    await fetch(GAS_WEB_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  // no-cors does not return JSON, so we fake a success response
-  return { success: true };
+    // no-cors me response read nahi hota → hum manually success message return karenge
+    return { ok: true };
+  } catch (err) {
+    return { ok: false };
+  }
 }
 
 // ---- Specific API Handlers ----
