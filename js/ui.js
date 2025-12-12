@@ -320,9 +320,24 @@ async function saveRequirement(status) {
       Status: status
     });
 
-    if (!res.success) {
-      alert("Error: " + (res.error || "Unable to save requirement"));
+    console.log("createRequirement response:", res);
+
+    // agar response hi nahi mila:
+    if (!res) {
+      alert("Error: Server ne koi response nahi diya.");
       return;
+    }
+
+    // agar backend ne success:false bheja:
+    if (res.success === false) {
+      alert("Error: " + (res.error || "Backend error while saving requirement"));
+      return;
+    }
+
+    // agar success field hi nahi hai, fir bhi sheet me row aa rahi hai:
+    // to isko success treat kar dete hain
+    if (res.success === undefined) {
+      console.warn("No success flag in response, but assuming OK:", res);
     }
 
     alert("Requirement saved successfully.");
@@ -331,7 +346,7 @@ async function saveRequirement(status) {
       loadRequirements();
     }
   } catch (err) {
-    console.error(err);
+    console.error("saveRequirement error:", err);
     alert("Unexpected error while saving requirement.");
   }
 }
