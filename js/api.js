@@ -5,7 +5,7 @@
 **************************************************/
 
 // 👇 Yahan apna deployed Web App EXEC URL daalo
-const GAS_WEB_URL = "PASTE_YOUR_EXEC_URL_HERE";
+const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
 
 /* ================================================
    CURRENT USER HELPERS
