@@ -39,20 +39,26 @@ async function apiGet(action, params = {}) {
 }
 
 async function apiPost(action, body = {}) {
-  const payload = Object.assign({}, body, { action });
+  const payload = { ...body, action };
 
-  const res = await fetch(GAS_WEB_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  try {
+    await fetch(GAS_WEB_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  return res.json();
+    // no-cors me response read nahi hota → hum manually success message return karenge
+    return { ok: true };
+  } catch (err) {
+    console.error("API POST Error:", err);
+    return { ok: false, error: err };
+  }
 }
+
 
 /* ================================================
    REQUIREMENTS API HELPERS (Phase-1)
