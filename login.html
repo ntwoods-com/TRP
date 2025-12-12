@@ -2,31 +2,49 @@
 <html>
 <head>
   <title>NT Woods HRMS - Login</title>
+
+  <!-- ✅ Correct path (if file is in /css/style.css) -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- ✅ Tumhara OAuth Client ID -->
   <meta name="google-signin-client_id" content="1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com">
-  <script src="https://accounts.google.com/gsi/client" async></script>
+
+  <!-- ✅ Load Google Identity script with defer -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
 
-<div class="login-card">
-  <h2>NT Woods HRMS</h2>
-  <div id="gSignInDiv"></div>
-</div>
+  <div class="login-card">
+    <h2>NT Woods HRMS</h2>
+    <p>Sign in with your Google Account</p>
+    <div id="gSignInDiv"></div>
+  </div>
 
-<script src="js/auth.js"></script>
+  <!-- ✅ Backend + Auth logic -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
 
-<script>
-  google.accounts.id.initialize({
-    client_id: "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com",
-    callback: handleGoogleLogin
-  });
+  <script>
+    // ✅ Wait for page load, then init button
+    window.addEventListener("load", function () {
+      if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
+        console.error("Google Identity script not loaded properly.");
+        alert("Google Sign-In load nahi ho paya. Network check karo ya thodi der baad try karo.");
+        return;
+      }
 
-  google.accounts.id.renderButton(
-    document.getElementById("gSignInDiv"),
-    { theme: "outline", size: "large" }
-  );
-</script>
+      google.accounts.id.initialize({
+        client_id: "YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+        callback: handleGoogleLogin
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("gSignInDiv"),
+        { theme: "outline", size: "large" }
+      );
+    });
+  </script>
 
 </body>
 </html>
