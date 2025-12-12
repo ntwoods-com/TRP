@@ -43,6 +43,7 @@ async function apiPost(action, body = {}) {
 
   const res = await fetch(GAS_WEB_URL, {
     method: "POST",
+    mode: "no-cors",
     headers: {
       "Content-Type": "application/json",
       "Accept": "application/json"
