@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Requirements - HRMS</title>
+  <title>Requirements - NT Woods HRMS</title>
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
   <div id="navbar"></div>
@@ -12,23 +12,14 @@
 
   <div class="content">
     <h2>Requirements</h2>
-
     <button class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
-
     <table id="reqTable"></table>
   </div>
 
-  <!-- ✅ ORDER IMPORTANT: pehle api.js, phir ui.js -->
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
-
-  <!-- ✅ Page load hone ke baad function call -->
   <script>
-    // DOM ready ke baad list load karo
-    document.addEventListener("DOMContentLoaded", function () {
-      loadRequirements();
-    });
+    document.addEventListener("DOMContentLoaded", loadRequirements);
   </script>
-
 </body>
 </html>
