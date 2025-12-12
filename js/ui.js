@@ -6,7 +6,10 @@
   - Requirements screen (Phase-1)
 **************************************************/
 // Requirements ko memory me rakhne ke liye
-let globalRequirements = [];
+// Global state
+let globalRequirements = [];   // list_requirements ka data
+let reqModalEl = null;         // current open modal reference
+
 
 function getCurrentUserOrRedirect() {
   const user = getCurrentUser();
