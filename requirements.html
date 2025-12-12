@@ -7,22 +7,28 @@
 
 <body>
 
-<div id="navbar"></div>
-<div id="sidebar"></div>
+  <div id="navbar"></div>
+  <div id="sidebar"></div>
 
-<div class="content">
-  <h2>Requirements</h2>
-  
-  <button class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
+  <div class="content">
+    <h2>Requirements</h2>
 
-  <table id="reqTable"></table>
-</div>
+    <button class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
 
-<script src="js/api.js"></script>
-script src="js/ui.js"></script>
-<script>
-  loadRequirements();
-</script>
+    <table id="reqTable"></table>
+  </div>
+
+  <!-- ✅ ORDER IMPORTANT: pehle api.js, phir ui.js -->
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+
+  <!-- ✅ Page load hone ke baad function call -->
+  <script>
+    // DOM ready ke baad list load karo
+    document.addEventListener("DOMContentLoaded", function () {
+      loadRequirements();
+    });
+  </script>
 
 </body>
 </html>
