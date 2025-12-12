@@ -147,6 +147,12 @@ async function loadRequirements() {
 
   initLayout();
 
+  // EA ke alawa Raise Requirement button hide
+  const raiseBtn = document.getElementById("btnRaiseRequirement");
+  if (raiseBtn && user.role !== "EA") {
+    raiseBtn.style.display = "none";
+  }
+
   const table = document.getElementById("reqTable");
   if (!table) return;
   table.innerHTML = `<tr><td>Loading...</td></tr>`;
@@ -190,14 +196,24 @@ async function loadRequirements() {
         html += `<td>${v}</td>`;
       });
 
-      const canEdit = (user.role === "EA" &&
-        (r.Status === "DRAFT" || r.Status === "HR_SENDBACK"));
+      const canEAEdit =
+        user.role === "EA" &&
+        (r.Status === "DRAFT" || r.Status === "HR_SENDBACK");
+
+      const canHRValidate =
+        user.role === "HR" &&
+        (r.Status === "SENT_TO_HR" || r.Status === "HR_SENDBACK");
+
+      let label = "View";
+      if (canEAEdit) label = "Edit & View";
+      else if (canHRValidate) label = "Validate";
 
       html += `<td>
         <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
-          ${canEdit ? "Edit &amp; View" : "View"}
+          ${label}
         </button>
       </td>`;
+
       html += "</tr>";
     });
 
@@ -207,65 +223,6 @@ async function loadRequirements() {
   } catch (err) {
     console.error(err);
     table.innerHTML = `<tr><td>Error loading requirements</td></tr>`;
-  }
-}
-
-/* ---------- Requirement create modal ---------- */
-
-function openCreateReq() {
-  const user = getCurrentUserOrRedirect();
-  if (!user) return;
-  if (user.role !== "EA") {
-    alert("Sirf EA requirement raise kar sakta hai.");
-    return;
-  }
-
-  closeReqModal(); // koi purana modal ho to band
-
-  reqModalEl = document.createElement("div");
-  reqModalEl.className = "modal-backdrop";
-  reqModalEl.innerHTML = `
-    <div class="modal">
-      <h3>Raise New Requirement</h3>
-
-      <label>Job Role Key</label>
-      <input type="text" id="reqJobRoleKey" placeholder="CRM / MIS / JR_ACCOUNTANT">
-
-      <label>Job Title</label>
-      <input type="text" id="reqJobTitle" placeholder="Customer Relationship Manager">
-
-      <label>Roles & Responsibilities</label>
-      <textarea id="reqRR" rows="3"></textarea>
-
-      <label>Must Have Skills</label>
-      <textarea id="reqSkills" rows="3"></textarea>
-
-      <label>Shift</label>
-      <input type="text" id="reqShift">
-
-      <label>Pay Scale</label>
-      <input type="text" id="reqPay">
-
-      <label>Perks</label>
-      <input type="text" id="reqPerks">
-
-      <label>Notes</label>
-      <textarea id="reqNotes" rows="2"></textarea>
-
-      <div class="modal-actions">
-        <button class="btn-outline" onclick="closeReqModal()">Cancel</button>
-        <button class="btn-secondary" onclick="saveRequirement('DRAFT')">Save as Draft</button>
-        <button class="btn-primary" onclick="saveRequirement('SENT_TO_HR')">Submit to HR</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(reqModalEl);
-}
-
-function closeReqModal() {
-  if (reqModalEl) {
-    reqModalEl.remove();
-    reqModalEl = null;
   }
 }
 
@@ -330,6 +287,38 @@ function openRequirementDetail(reqId) {
 
   const safe = v => (v == null ? "" : String(v));
 
+  const isHR = (user.role === "HR");
+  const canHRDecide =
+    isHR && (req.Status === "SENT_TO_HR" || req.Status === "HR_SENDBACK");
+
+  // HR ke liye remark editable, baaki ke liye read-only
+  const hrRemarkBlock = isHR
+    ? `
+      <label>HR Remark</label>
+      <textarea id="hrRemarkInput" rows="3">${safe(req.HRRemark)}</textarea>
+    `
+    : `
+      <label>HR Remark</label>
+      <div class="field-box multi">${safe(req.HRRemark)}</div>
+    `;
+
+  let actionButtons = `
+      <button class="btn-outline" onclick="closeReqModal()">Close</button>
+  `;
+
+  if (canHRDecide) {
+    actionButtons += `
+      <button class="btn-secondary"
+        onclick="hrSubmitRequirementDecision('${req.RequirementId}','HR_SENDBACK')">
+        Send Back
+      </button>
+      <button class="btn-primary"
+        onclick="hrSubmitRequirementDecision('${req.RequirementId}','HR_VALID')">
+        Mark as Valid
+      </button>
+    `;
+  }
+
   reqModalEl = document.createElement("div");
   reqModalEl.className = "modal-backdrop";
   reqModalEl.innerHTML = `
@@ -385,13 +374,43 @@ function openRequirementDetail(reqId) {
       <label>Notes</label>
       <div class="field-box multi">${safe(req.Notes)}</div>
 
-      <label>HR Remark</label>
-      <div class="field-box multi">${safe(req.HRRemark)}</div>
+      ${hrRemarkBlock}
 
       <div class="modal-actions">
-        <button class="btn-outline" onclick="closeReqModal()">Close</button>
+        ${actionButtons}
       </div>
     </div>
   `;
   document.body.appendChild(reqModalEl);
+}
+async function hrSubmitRequirementDecision(reqId, newStatus) {
+  const remarkEl = document.getElementById("hrRemarkInput");
+  const remark = remarkEl ? remarkEl.value.trim() : "";
+
+  if (newStatus === "HR_SENDBACK" && !remark) {
+    alert("Send Back karte waqt HR Remark required hai.");
+    return;
+  }
+
+  try {
+    const res = await updateRequirementStatus({
+      RequirementId: reqId,
+      Status: newStatus,
+      HRRemark: remark
+    });
+
+    console.log("HR update response:", res);
+
+    if (!res || res.success === false) {
+      alert("Error: " + (res && res.error ? res.error : "Unable to update requirement"));
+      return;
+    }
+
+    alert("Requirement updated successfully.");
+    closeReqModal();
+    loadRequirements();
+  } catch (e) {
+    console.error(e);
+    alert("Unexpected error while updating requirement.");
+  }
 }
