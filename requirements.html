@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Requirements - NT Woods HRMS</title>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="css/style.css">
+  <title>Requirements - HRMS</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <div id="navbar"></div>
-  <div id="sidebar"></div>
+<div id="app">
+  <h2>Requirements</h2>
 
-  <div class="content">
-    <h2>Requirements</h2>
-   <button id="btnRaiseRequirement" class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
-    <table id="reqTable"></table>
-  </div>
+  <button id="btnRaiseRequirement" class="btn-primary" onclick="openCreateReq()">
+    Raise Requirement
+  </button>
 
-  <script src="js/api.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", loadRequirements);
-  </script>
+  <table id="reqTable" class="table"></table>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", loadRequirements);
+</script>
+
 </body>
 </html>
