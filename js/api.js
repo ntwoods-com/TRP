@@ -4,12 +4,9 @@
   - Requirements APIs (Phase-1)
 **************************************************/
 
-// 👉 Yahan apna deployed Web App URL daalo (EXEC URL)
+// 👇 Yahan naya deployed Web App EXEC URL daalo
 const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
 
-/**
- * Logged-in user ko localStorage se nikaalne ka helper
- */
 function getCurrentUser() {
   const raw = localStorage.getItem("hrmsUser");
   if (!raw) return null;
@@ -21,9 +18,6 @@ function getCurrentUser() {
   }
 }
 
-/**
- * Generic GET call: ?action=...&param=...
- */
 async function apiGet(action, params = {}) {
   const url = new URL(GAS_WEB_URL);
   url.searchParams.set("action", action);
@@ -44,9 +38,6 @@ async function apiGet(action, params = {}) {
   return res.json();
 }
 
-/**
- * Generic POST call: { action, ...body }
- */
 async function apiPost(action, body = {}) {
   const payload = Object.assign({}, body, { action });
 
@@ -66,9 +57,6 @@ async function apiPost(action, body = {}) {
    REQUIREMENTS API HELPERS (Phase-1)
 ================================================ */
 
-/**
- * Get list of Requirements
- */
 async function fetchRequirements() {
   const user = getCurrentUser();
   if (!user) {
@@ -77,13 +65,10 @@ async function fetchRequirements() {
   }
 
   return apiGet("list_requirements", {
-    email: user.email
+    email: encodeURIComponent(user.email)
   });
 }
 
-/**
- * Create a new Requirement (EA only)
- */
 async function createRequirement(data) {
   const user = getCurrentUser();
   if (!user) {
@@ -98,9 +83,6 @@ async function createRequirement(data) {
   return apiPost("create_requirement", payload);
 }
 
-/**
- * Update Requirement Status (HR / EA)
- */
 async function updateRequirementStatus(data) {
   const user = getCurrentUser();
   if (!user) {
@@ -115,9 +97,6 @@ async function updateRequirementStatus(data) {
   return apiPost("update_requirement_status", payload);
 }
 
-/**
- * List Job Templates (for dropdown auto-fill)
- */
 async function fetchJobTemplates() {
   const user = getCurrentUser();
   if (!user) {
@@ -126,6 +105,6 @@ async function fetchJobTemplates() {
   }
 
   return apiGet("list_job_templates", {
-    email: user.email
+    email: encodeURIComponent(user.email)
   });
 }
