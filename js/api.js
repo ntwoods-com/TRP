@@ -4,8 +4,12 @@
   - Requirements APIs (Phase-1)
 **************************************************/
 
-// 👇 Yahan naya deployed Web App EXEC URL daalo
-const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
+// 👇 Yahan apna deployed Web App EXEC URL daalo
+const GAS_WEB_URL = "PASTE_YOUR_EXEC_URL_HERE";
+
+/* ================================================
+   CURRENT USER HELPERS
+================================================ */
 
 function getCurrentUser() {
   const raw = localStorage.getItem("hrmsUser");
@@ -18,13 +22,18 @@ function getCurrentUser() {
   }
 }
 
+/* ================================================
+   GENERIC GET / POST
+================================================ */
+
 async function apiGet(action, params = {}) {
   const url = new URL(GAS_WEB_URL);
   url.searchParams.set("action", action);
 
   Object.keys(params).forEach(k => {
-    if (params[k] !== undefined && params[k] !== null) {
-      url.searchParams.set(k, params[k]);
+    const v = params[k];
+    if (v !== undefined && v !== null) {
+      url.searchParams.set(k, v);
     }
   });
 
@@ -58,7 +67,6 @@ async function apiPost(action, body = {}) {
   }
 }
 
-
 /* ================================================
    REQUIREMENTS API HELPERS (Phase-1)
 ================================================ */
@@ -70,15 +78,8 @@ async function fetchRequirements() {
     return;
   }
 
-  async function fetchRequirements() {
-  const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
   return apiGet("list_requirements", {
-    email: user.email   // ❌ encode nahi karna yahan
+    email: user.email   // yahan encode nahi karna, backend khud handle karega
   });
 }
 
@@ -120,16 +121,4 @@ async function updateRequirementStatus(data) {
   });
 
   return apiPost("update_requirement_status", payload);
-}
-
-async function fetchJobTemplates() {
-  const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  return apiGet("list_job_templates", {
-    email: encodeURIComponent(user.email)
-  });
 }
