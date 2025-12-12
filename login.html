@@ -3,14 +3,11 @@
 <head>
   <title>NT Woods HRMS - Login</title>
 
-  <!-- ✅ Correct path (if file is in /css/style.css) -->
+  <!-- ✅ Correct CSS path (assuming /TRP/css/style.css) -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- ✅ Tumhara OAuth Client ID -->
-  <meta name="google-signin-client_id" content="1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com">
-
-  <!-- ✅ Load Google Identity script with defer -->
-  <script src="1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com" async defer></script>
+  <!-- ✅ Google Identity Services script (Yahi ek script hai jo Google se aayega) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -21,21 +18,24 @@
     <div id="gSignInDiv"></div>
   </div>
 
-  <!-- ✅ Backend + Auth logic -->
+  <!-- ✅ Tumhara apna JS -->
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
 
   <script>
-    // ✅ Wait for page load, then init button
+    // 👉 yahan REAL Client ID daalna (ye sirf STRING hai, URL nahi)
+    const HRMS_CLIENT_ID = "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com";
+
     window.addEventListener("load", function () {
+      // check if identity script successfully loaded
       if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
         console.error("Google Identity script not loaded properly.");
-        alert("Google Sign-In load nahi ho paya. Network check karo ya thodi der baad try karo.");
+        alert("Google Sign-In load nahi ho paya. Network ya ad-block check karo.");
         return;
       }
 
       google.accounts.id.initialize({
-        client_id: "YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+        client_id: HRMS_CLIENT_ID,
         callback: handleGoogleLogin
       });
 
