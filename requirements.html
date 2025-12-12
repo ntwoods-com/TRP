@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Requirements - HRMS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div id="navbar"></div>
+<div id="sidebar"></div>
+
+<div class="content">
+  <h2>Requirements</h2>
+  
+  <button onclick="openCreateReq()">Raise Requirement</button>
+
+  <table id="reqTable"></table>
+</div>
+
+<script src="js/ui.js"></script>
+<script src="js/api.js"></script>
+
+<script>
+  loadRequirements();
+</script>
+
+</body>
+</html>
