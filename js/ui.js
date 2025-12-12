@@ -171,12 +171,14 @@ async function loadRequirements() {
 
   try {
     const res = await fetchRequirements();
-    if (!res.success) {
-      table.innerHTML = `<tr><td>Error: ${res.error || "Unable to load requirements"}</td></tr>`;
+    if (!res || !res.success) {
+      table.innerHTML = `<tr><td>Error: ${(res && res.error) || "Unable to load requirements"}</td></tr>`;
       return;
     }
 
     const rows = res.data || [];
+    // 🔴 yahan global me save kar rahe hain
+    globalRequirements = rows;
 
     if (rows.length === 0) {
       table.innerHTML = `<tr><td>No requirements found</td></tr>`;
@@ -208,11 +210,20 @@ async function loadRequirements() {
         html += `<td>${val}</td>`;
       });
 
+      // 🔴 yahan alert ki jagah proper functions
       let actions = "";
       if (user.role === "EA" && (r.Status === "DRAFT" || r.Status === "HR_SENDBACK")) {
-        actions += `<button class="btn-small" onclick="alert('Edit flow later: ${r.RequirementId}')">Edit & Resubmit</button>`;
+        actions += `
+          <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
+            Edit &amp; View
+          </button>
+        `;
       } else {
-        actions += `<button class="btn-small" onclick="alert('View detail later: ${r.RequirementId}')">View</button>`;
+        actions += `
+          <button class="btn-small" onclick="openRequirementDetail('${r.RequirementId}')">
+            View
+          </button>
+        `;
       }
 
       html += `<td>${actions}</td>`;
@@ -225,70 +236,6 @@ async function loadRequirements() {
   } catch (err) {
     console.error(err);
     table.innerHTML = `<tr><td>Error loading requirements</td></tr>`;
-  }
-}
-
-let reqModalEl = null;
-
-function openCreateReq() {
-  const user = getCurrentUserOrRedirect();
-  if (!user) return;
-
-  if (user.role !== "EA") {
-    alert("Sirf EA hi requirement raise kar sakta hai.");
-    return;
-  }
-
-  if (reqModalEl) {
-    reqModalEl.remove();
-    reqModalEl = null;
-  }
-
-  reqModalEl = document.createElement("div");
-  reqModalEl.className = "modal-backdrop";
-  reqModalEl.innerHTML = `
-    <div class="modal">
-      <h3>Raise New Requirement</h3>
-
-      <label>Job Role Key</label>
-      <input type="text" id="reqJobRoleKey" placeholder="CRM / MIS / JR_ACCOUNTANT etc.">
-
-      <label>Job Title</label>
-      <input type="text" id="reqJobTitle" placeholder="Customer Relationship Manager">
-
-      <label>Roles & Responsibilities</label>
-      <textarea id="reqRR" rows="3"></textarea>
-
-      <label>Must Have Skills</label>
-      <textarea id="reqSkills" rows="3"></textarea>
-
-      <label>Shift</label>
-      <input type="text" id="reqShift" placeholder="Day / Evening / Rotational">
-
-      <label>Pay Scale</label>
-      <input type="text" id="reqPay" placeholder="15k - 20k per month">
-
-      <label>Perks</label>
-      <input type="text" id="reqPerks" placeholder="Incentives, PF, etc.">
-
-      <label>Notes</label>
-      <textarea id="reqNotes" rows="2"></textarea>
-
-      <div class="modal-actions">
-        <button class="btn-outline" onclick="closeReqModal()">Cancel</button>
-        <button class="btn-secondary" onclick="saveRequirement('DRAFT')">Save as Draft</button>
-        <button class="btn-primary" onclick="saveRequirement('SENT_TO_HR')">Submit to HR</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(reqModalEl);
-}
-
-function closeReqModal() {
-  if (reqModalEl) {
-    reqModalEl.remove();
-    reqModalEl = null;
   }
 }
 
@@ -349,4 +296,95 @@ async function saveRequirement(status) {
     console.error("saveRequirement error:", err);
     alert("Unexpected error while saving requirement.");
   }
+}
+function openRequirementDetail(reqId) {
+  const user = getCurrentUserOrRedirect();
+  if (!user) return;
+
+  const req = (globalRequirements || []).find(r => r.RequirementId === reqId);
+  if (!req) {
+    alert("Requirement data not found for: " + reqId);
+    return;
+  }
+
+  // Pehle se agar koi modal open hai to remove
+  if (reqModalEl) {
+    reqModalEl.remove();
+    reqModalEl = null;
+  }
+
+  const safe = (v) => v == null ? "" : String(v);
+
+  reqModalEl = document.createElement("div");
+  reqModalEl.className = "modal-backdrop";
+  reqModalEl.innerHTML = `
+    <div class="modal modal-wide">
+      <h3>Requirement Detail</h3>
+
+      <div class="detail-grid">
+        <div>
+          <label>Requirement ID</label>
+          <div class="field-value">${safe(req.RequirementId)}</div>
+        </div>
+        <div>
+          <label>Job Role Key</label>
+          <div class="field-value">${safe(req.JobRoleKey)}</div>
+        </div>
+        <div>
+          <label>Job Title</label>
+          <div class="field-value">${safe(req.JobTitle)}</div>
+        </div>
+        <div>
+          <label>Status</label>
+          <div class="badge status-${safe(req.Status).toLowerCase()}">
+            ${safe(req.Status)}
+          </div>
+        </div>
+        <div>
+          <label>Raised By</label>
+          <div class="field-value">${safe(req.RaisedByEmail)}</div>
+        </div>
+        <div>
+          <label>Raised At</label>
+          <div class="field-value">
+            ${req.RaisedAt ? new Date(req.RaisedAt).toLocaleString() : ""}
+          </div>
+        </div>
+      </div>
+
+      <label>Roles &amp; Responsibilities</label>
+      <div class="field-box multi">${safe(req.RolesAndResponsibilities)}</div>
+
+      <label>Must Have Skills</label>
+      <div class="field-box multi">${safe(req.MustHaveSkills)}</div>
+
+      <label>Shift</label>
+      <div class="field-box">${safe(req.Shift)}</div>
+
+      <label>Pay Scale</label>
+      <div class="field-box">${safe(req.PayScale)}</div>
+
+      <label>Perks</label>
+      <div class="field-box">${safe(req.Perks)}</div>
+
+      <label>Notes</label>
+      <div class="field-box multi">${safe(req.Notes)}</div>
+
+      <label>HR Remark</label>
+      <div class="field-box multi">${safe(req.HRRemark)}</div>
+
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeReqModal()">Close</button>
+        ${
+          (user.role === "EA" && (req.Status === "DRAFT" || req.Status === "HR_SENDBACK"))
+            ? `<button class="btn-primary" onclick="alert('Edit flow abhi pending hai, baad me implement karenge.')">
+                 Edit &amp; Resubmit
+               </button>`
+            : ""
+        }
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(reqModalEl);
 }
