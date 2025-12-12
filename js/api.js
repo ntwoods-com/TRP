@@ -1,20 +1,50 @@
-// =======================================
-// GLOBAL CONFIG
-// =======================================
-const API_BASE = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec"; // MUST END WITH /exec
+/*************************************************
+  NT Woods HRMS - api.js
+**************************************************/
 
-// GET request wrapper
-async function apiGet(action, params = {}) {
-  params.action = action;
+// 👇 yahan apna latest Web App EXEC URL daalo
+const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
 
-  const qs = new URLSearchParams(params).toString();
-  const url = `${API_BASE}?${qs}`;
+/* ---------- Current user helpers ---------- */
 
-  const res = await fetch(url);
-  return await res.json();
+function getCurrentUser() {
+  const raw = localStorage.getItem("hrmsUser");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error("Invalid hrmsUser in storage", e);
+    return null;
+  }
 }
 
-// POST request wrapper
+/* ---------- Generic GET / POST ---------- */
+
+async function apiGet(action, params = {}) {
+  const url = new URL(GAS_WEB_URL);
+  url.searchParams.set("action", action);
+
+  Object.keys(params).forEach(k => {
+    const v = params[k];
+    if (v !== undefined && v !== null) {
+      url.searchParams.set(k, v);
+    }
+  });
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: { "Accept": "application/json" }
+  });
+
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("GET non-JSON:", text);
+    return { success: false, error: "Invalid response from server (GET)" };
+  }
+}
+
 async function apiPost(action, body = {}) {
   const payload = { ...body, action };
 
@@ -35,51 +65,47 @@ async function apiPost(action, body = {}) {
   }
 }
 
-// ---- Specific API Handlers ----
 
-// LOGIN
-async function loginUser(email) {
-  return await apiGet("login", { email });
-}
-
-// GET CURRENT USER
-function getCurrentUser() {
-  const raw = localStorage.getItem("HRMS_USER");
-  if (!raw) return null;
-  return JSON.parse(raw);
-}
-
-function saveCurrentUser(u) {
-  localStorage.setItem("HRMS_USER", JSON.stringify(u));
-}
-
-function logoutUser() {
-  localStorage.removeItem("HRMS_USER");
-  window.location.href = "login.html";
-}
-
-function getCurrentUserOrRedirect() {
-  const u = getCurrentUser();
-  if (!u) {
-    window.location.href = "login.html";
-    return null;
-  }
-  return u;
-}
-
-// -------- REQUIREMENTS ---------
+/* ---------- Requirements APIs ---------- */
 
 async function fetchRequirements() {
   const user = getCurrentUser();
-  return await apiGet("list_requirements", { email: user.email });
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  return apiGet("list_requirements", { email: user.email });
+}
+
+async function fetchJobTemplates() {
+  const user = getCurrentUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  return apiGet("list_job_templates", { email: user.email });
 }
 
 async function createRequirement(data) {
   const user = getCurrentUser();
-  return await apiPost("create_requirement", { ...data, email: user.email });
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const payload = Object.assign({}, data, { email: user.email });
+  return apiPost("create_requirement", payload);
 }
 
 async function updateRequirementStatus(data) {
   const user = getCurrentUser();
-  return await apiPost("update_requirement_status", { ...data, email: user.email });
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const payload = Object.assign({}, data, { email: user.email });
+  return apiPost("update_requirement_status", payload);
 }
