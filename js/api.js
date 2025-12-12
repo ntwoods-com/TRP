@@ -54,8 +54,7 @@ async function apiPost(action, body = {}) {
     // no-cors me response read nahi hota → hum manually success message return karenge
     return { ok: true };
   } catch (err) {
-    console.error("API POST Error:", err);
-    return { ok: false, error: err };
+    return { ok: false };
   }
 }
 
