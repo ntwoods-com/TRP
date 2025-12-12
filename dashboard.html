@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard - HRMS</title>
+  <title>Dashboard - NT Woods HRMS</title>
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-<div id="navbar"></div>
-<div id="sidebar"></div>
+  <div id="navbar"></div>
+  <div id="sidebar"></div>
 
-<div class="content">
-  <h2>Welcome to NT Woods HRMS</h2>
-  <div id="tiles"></div>
-</div>
+  <div class="content">
+    <h2>Dashboard</h2>
+    <div id="tiles"></div>
+  </div>
 
-<script src="js/api.js"></script>
-<script src="js/ui.js"></script>
-<script>
-  loadDashboard();
-</script>
-
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", loadDashboard);
+  </script>
 </body>
 </html>
