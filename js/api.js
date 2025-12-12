@@ -1,15 +1,11 @@
 /*************************************************
   NT Woods HRMS - api.js
-  - Generic GET/POST wrappers
-  - Requirements APIs (Phase-1)
 **************************************************/
 
-// 👇 Yahan apna deployed Web App EXEC URL daalo
-const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
+// 👇 yahan apna latest Web App EXEC URL daalo
+const GAS_WEB_URL = "PUT_YOUR_EXEC_URL_HERE";
 
-/* ================================================
-   CURRENT USER HELPERS
-================================================ */
+/* ---------- Current user helpers ---------- */
 
 function getCurrentUser() {
   const raw = localStorage.getItem("hrmsUser");
@@ -22,9 +18,7 @@ function getCurrentUser() {
   }
 }
 
-/* ================================================
-   GENERIC GET / POST
-================================================ */
+/* ---------- Generic GET / POST ---------- */
 
 async function apiGet(action, params = {}) {
   const url = new URL(GAS_WEB_URL);
@@ -39,12 +33,16 @@ async function apiGet(action, params = {}) {
 
   const res = await fetch(url.toString(), {
     method: "GET",
-    headers: {
-      "Accept": "application/json"
-    }
+    headers: { "Accept": "application/json" }
   });
 
-  return res.json();
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("GET non-JSON:", text);
+    return { success: false, error: "Invalid response from server (GET)" };
+  }
 }
 
 async function apiPost(action, body = {}) {
@@ -67,9 +65,8 @@ async function apiPost(action, body = {}) {
   }
 }
 
-/* ================================================
-   REQUIREMENTS API HELPERS (Phase-1)
-================================================ */
+
+/* ---------- Requirements APIs ---------- */
 
 async function fetchRequirements() {
   const user = getCurrentUser();
@@ -78,9 +75,7 @@ async function fetchRequirements() {
     return;
   }
 
-  return apiGet("list_requirements", {
-    email: user.email   // yahan encode nahi karna, backend khud handle karega
-  });
+  return apiGet("list_requirements", { email: user.email });
 }
 
 async function fetchJobTemplates() {
@@ -90,9 +85,7 @@ async function fetchJobTemplates() {
     return;
   }
 
-  return apiGet("list_job_templates", {
-    email: user.email
-  });
+  return apiGet("list_job_templates", { email: user.email });
 }
 
 async function createRequirement(data) {
@@ -102,10 +95,7 @@ async function createRequirement(data) {
     return;
   }
 
-  const payload = Object.assign({}, data, {
-    email: user.email
-  });
-
+  const payload = Object.assign({}, data, { email: user.email });
   return apiPost("create_requirement", payload);
 }
 
@@ -116,9 +106,6 @@ async function updateRequirementStatus(data) {
     return;
   }
 
-  const payload = Object.assign({}, data, {
-    email: user.email
-  });
-
+  const payload = Object.assign({}, data, { email: user.email });
   return apiPost("update_requirement_status", payload);
 }
