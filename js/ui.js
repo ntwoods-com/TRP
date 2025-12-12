@@ -6,10 +6,6 @@
   - Requirements screen (Phase-1)
 **************************************************/
 
-/* ================================================
-   BASIC HELPERS
-================================================ */
-
 function getCurrentUserOrRedirect() {
   const user = getCurrentUser();
   if (!user) {
@@ -23,10 +19,6 @@ function logout() {
   localStorage.removeItem("hrmsUser");
   window.location.href = "login.html";
 }
-
-/* ================================================
-   NAVBAR + SIDEBAR RENDER
-================================================ */
 
 function renderNavbar() {
   const user = getCurrentUserOrRedirect();
@@ -50,7 +42,6 @@ function renderNavbar() {
   `;
 }
 
-// Define modules for sidebar
 const SIDEBAR_MODULES = [
   { key: "DASHBOARD", label: "Dashboard", href: "dashboard.html" },
   { key: "REQUIREMENTS", label: "Requirements", href: "requirements.html" },
@@ -69,10 +60,7 @@ const SIDEBAR_MODULES = [
 ];
 
 function hasViewPermission(user, moduleKey) {
-  // Dashboard ko sab dekh sakte hai
   if (moduleKey === "DASHBOARD") return true;
-
-  // Admin ko sab visible
   if (user.role === "ADMIN") return true;
 
   if (!user.permissions || !Array.isArray(user.permissions)) return false;
@@ -109,17 +97,12 @@ function renderSidebar() {
   sidebar.innerHTML = html;
 }
 
-/**
- * Common layout init: navbar + sidebar
- */
 function initLayout() {
   renderNavbar();
   renderSidebar();
 }
 
-/* ================================================
-   DASHBOARD LOGIC (Phase-1: Static-ish tiles)
-================================================ */
+/* DASHBOARD */
 
 function loadDashboard() {
   const user = getCurrentUserOrRedirect();
@@ -158,7 +141,6 @@ function loadDashboard() {
       { title: "Admin - Permissions", desc: "Role based module access", action: "admin.html" },
       { title: "Job Templates", desc: "Manage job profiles", action: "admin.html" },
       { title: "Reports / Analytics", desc: "View hiring stats", action: "#" },
-      // plus some HR tiles reuse for quick navigation
       { title: "Requirements", desc: "Full control over requirements", action: "requirements.html" },
       { title: "Job Posting", desc: "Job posting status", action: "jobposting.html" }
     ];
@@ -174,9 +156,7 @@ function loadDashboard() {
     .join("");
 }
 
-/* ================================================
-   REQUIREMENTS PAGE LOGIC
-================================================ */
+/* REQUIREMENTS PAGE */
 
 async function loadRequirements() {
   const user = getCurrentUserOrRedirect();
@@ -248,10 +228,6 @@ async function loadRequirements() {
   }
 }
 
-/* ================================================
-   REQUIREMENT CREATE MODAL (Simple JS Modal)
-================================================ */
-
 let reqModalEl = null;
 
 function openCreateReq() {
@@ -263,7 +239,6 @@ function openCreateReq() {
     return;
   }
 
-  // Already open? remove and recreate
   if (reqModalEl) {
     reqModalEl.remove();
     reqModalEl = null;
@@ -352,7 +327,6 @@ async function saveRequirement(status) {
 
     alert("Requirement saved successfully.");
     closeReqModal();
-    // reload list
     if (typeof loadRequirements === "function") {
       loadRequirements();
     }
