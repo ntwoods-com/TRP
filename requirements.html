@@ -3,6 +3,7 @@
 <head>
   <title>Requirements - NT Woods HRMS</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,8 +12,17 @@
   <div id="sidebar"></div>
 
   <div class="content">
-    <h2>Requirements</h2>
-   <button id="btnRaiseRequirement" class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
+    <div class="page-head">
+      <div>
+        <h2 id="pageTitle">Requirements</h2>
+        <div class="subtext" id="pageSub">Create & track requirements</div>
+      </div>
+      <div class="page-actions">
+        <button id="btnRaiseRequirement" class="btn-primary" onclick="openCreateReq()">Raise Requirement</button>
+      </div>
+    </div>
+
+    <div id="reqAlert"></div>
     <table id="reqTable"></table>
   </div>
 
