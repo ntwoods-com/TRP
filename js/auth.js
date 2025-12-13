@@ -1,26 +1,20 @@
 /*************************************************
-  NT Woods HRMS - auth.js
+  auth.js - Google GSI callback
 **************************************************/
+const AUTH = { CLIENT_ID: "PASTE_YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com" };
 
-function decodeJwt(token) {
+function decodeJwt(token){
   return JSON.parse(atob(token.split(".")[1]));
 }
 
-async function handleGoogleLogin(response) {
-  const user = decodeJwt(response.credential);
+async function handleGoogleLogin(resp){
+  const u = decodeJwt(resp.credential);
+  const backend = await loginWithEmail(u.email);
 
-  const res = await fetch(
-    GAS_WEB_URL + "?action=login&email=" + encodeURIComponent(user.email)
-  );
-
-  const backend = await res.json();
-
-  if (!backend.success) {
-    alert("Login failed: " + (backend.error || "You are not authorized"));
-    console.log("LOGIN_BACKEND_RESPONSE", backend);
+  if(!backend.success){
+    alert("Access Denied: " + (backend.error || "Not authorized"));
     return;
   }
-
   localStorage.setItem("hrmsUser", JSON.stringify(backend.user));
-  window.location.href = "dashboard.html";
+  location.href = "dashboard.html";
 }
