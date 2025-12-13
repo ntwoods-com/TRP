@@ -1,128 +1,77 @@
 /*************************************************
-  NT Woods HRMS - api.js
+  NT Woods HRMS - api.js (Phase-2.3)
 **************************************************/
+const HRMS = { WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec" };
 
-// 👇 yahan apna latest Web App EXEC URL daalo
-const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbyNxDkI76UwM1F9g_5f7mgk4HdwPbOXbbpGSBCgbT138hfUbM4mCFg7eRDNSP-XpSuFOQ/exec";
-
-/* ---------- Current user helpers ---------- */
-
-function getCurrentUser() {
+function getCurrentUser(){
   const raw = localStorage.getItem("hrmsUser");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Invalid hrmsUser in storage", e);
-    return null;
-  }
+  if(!raw) return null;
+  try { return JSON.parse(raw); } catch(e){ return null; }
 }
-
-/* ---------- Generic GET / POST ---------- */
 
 async function apiGet(action, params = {}) {
-  const url = new URL(GAS_WEB_URL);
+  const url = new URL(HRMS.WEB_APP_URL);
   url.searchParams.set("action", action);
-
   Object.keys(params).forEach(k => {
     const v = params[k];
-    if (v !== undefined && v !== null) {
-      url.searchParams.set(k, v);
-    }
+    if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, v);
   });
 
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: { "Accept": "application/json" }
-  });
-
+  const res = await fetch(url.toString(), { method:"GET", headers:{ "Accept":"application/json" } });
   const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("GET non-JSON:", text);
-    return { success: false, error: "Invalid response from server (GET)" };
-  }
+  try { return JSON.parse(text); }
+  catch(e){ return { success:false, error:"Invalid JSON from server" }; }
 }
 
-async function apiPost(action, body = {}) {
+async function apiPostNoCors(action, body = {}) {
   const payload = { ...body, action };
-
   try {
-    await fetch(GAS_WEB_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+    await fetch(HRMS.WEB_APP_URL, {
+      method:"POST",
+      mode:"no-cors",
+      headers:{ "Content-Type":"application/json" },
       body: JSON.stringify(payload)
     });
-
-    // no-cors me response read nahi hota
-    return { ok: true };
-  } catch (err) {
-    console.error("apiPost error", err);
-    return { ok: false };
+    return { ok:true };
+  } catch(e){
+    console.error(e);
+    return { ok:false, error:String(e) };
   }
 }
 
-/* ---------- Requirements APIs ---------- */
+/* AUTH */
+async function loginWithEmail(email){ return apiGet("login", { email }); }
 
-async function fetchRequirements() {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  return apiGet("list_requirements", { email: user.email });
+/* Requirements */
+async function fetchRequirements(){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiGet("list_requirements", { email:u.email });
+}
+async function fetchHrValidRequirements(){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiGet("list_hr_valid_requirements", { email:u.email });
 }
 
-async function fetchJobTemplates() {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  return apiGet("list_job_templates", { email: user.email });
+/* Job Posting */
+async function fetchJobPostings(){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiGet("list_job_postings", { email:u.email });
+}
+async function saveJobPostings(requirementId, portals){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiPostNoCors("save_job_postings", { email:u.email, RequirementId: requirementId, portals });
 }
 
-async function createRequirement(data) {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  const payload = Object.assign({}, data, { email: user.email });
-  return apiPost("create_requirement", payload);
+/* CV Upload */
+async function fetchCvReadyRequirements(){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiGet("list_cv_ready_requirements", { email:u.email });
 }
-
-async function updateRequirementStatus(data) {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  const payload = Object.assign({}, data, { email: user.email });
-  return apiPost("update_requirement_status", payload);
+async function fetchApplicantsByRequirement(requirementId){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiGet("list_applicants_by_requirement", { email:u.email, requirementId });
 }
-
-/* ---------- Job Posting APIs ---------- */
-
-async function fetchHRValidRequirements() {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  return apiGet("list_hr_valid_requirements", { email: user.email });
-}
-
-async function fetchJobPostings() {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  return apiGet("list_job_postings", { email: user.email });
-}
-
-async function saveJobPostings(requirementId, portals) {
-  return apiPost("save_job_postings", { RequirementId: requirementId, portals });
-}
-async function fetchApplicantsByRequirement(requirementId) {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-  return apiGet("list_applicants_by_requirement", { email: user.email, requirementId });
-}
-
-async function bulkUploadSingleCv(requirementId, fileObj) {
-  const user = getCurrentUser();
-  if (!user) { window.location.href = "login.html"; return; }
-
-  // NOTE: agar tumhara POST CORS allow karta hai, to apiPost me mode:no-cors hatake JSON read kar sakte ho.
-  // abhi stable mode => no-cors, response opaque; but backend actual save karega.
-  return apiPost("bulk_upload_cvs", {
-    RequirementId: requirementId,
-    file: fileObj
-  });
+async function uploadSingleCv(requirementId, fileObj){
+  const u=getCurrentUser(); if(!u){ location.href="login.html"; return; }
+  return apiPostNoCors("upload_cv_single", { email:u.email, RequirementId: requirementId, file:fileObj });
 }
