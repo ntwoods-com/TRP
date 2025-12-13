@@ -1,30 +1,27 @@
 /*************************************************
-  NT Woods HRMS - ui.js (FULL UPDATED)
-  Safe, stable & complete (Phase-2 ready)
+  NT Woods HRMS - ui.js (UPDATED - Clean UI/UX)
 **************************************************/
 
 /* -------------------------------
-   GLOBAL HELPERS
+   AUTH / LAYOUT
 --------------------------------*/
-
-// Logged-in user fetch
 function getCurrentUserOrRedirect() {
   const raw = localStorage.getItem("hrmsUser");
-  if (!raw) {
-    window.location.href = "login.html";
-    return null;
-  }
-
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Invalid stored hrmsUser", e);
-    window.location.href = "login.html";
-    return null;
-  }
+  if (!raw) { window.location.href = "login.html"; return null; }
+  try { return JSON.parse(raw); }
+  catch (e) { window.location.href = "login.html"; return null; }
 }
 
-// Navbar rendering
+function logout() {
+  localStorage.removeItem("hrmsUser");
+  window.location.href = "login.html";
+}
+
+function initLayout(activeKey = "") {
+  renderNavbar();
+  renderSidebar(activeKey);
+}
+
 function renderNavbar() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
@@ -34,290 +31,425 @@ function renderNavbar() {
 
   nav.innerHTML = `
     <div class="nav-left">
-      <h2>NT Woods HRMS</h2>
+      <div class="app-title">NT Woods HRMS</div>
     </div>
     <div class="nav-right">
-      <span>${user.name} (${user.email})</span>
-      <span class="badge role-${user.role.toLowerCase()}">${user.role}</span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+      <div class="user-info">
+        <div class="user-name">${escapeHtml(user.name || "")}</div>
+        <div class="user-email">${escapeHtml(user.email || "")}</div>
+      </div>
+      <div class="role-badge">${escapeHtml(user.role || "")}</div>
+      <button class="btn-link" onclick="logout()">Logout</button>
     </div>
   `;
 }
 
-// Sidebar rendering
-function renderSidebar() {
+function renderSidebar(activeKey = "") {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
   const side = document.getElementById("sidebar");
   if (!side) return;
 
-  let modules = [];
+  const modules = [];
 
-  if (user.role === "EA") {
-    modules = [
-      { key: "requirements", label: "Requirements", link: "requirements.html" }
-    ];
-  }
+  // Shared
+  modules.push({ key: "dashboard", label: "Dashboard", link: "dashboard.html" });
+  modules.push({ key: "requirements", label: "Requirements", link: "requirements.html" });
 
-  if (user.role === "HR") {
-    modules = [
-      { key: "requirements", label: "Requirements", link: "requirements.html" }
-    ];
-  }
-
-  if (user.role === "ADMIN") {
-    modules = [
-      { key: "requirements", label: "Requirements", link: "requirements.html" }
-    ];
+  // HR/Admin
+  if (user.role === "HR" || user.role === "ADMIN") {
+    modules.push({ key: "jobposting", label: "Job Posting", link: "jobposting.html" });
   }
 
   let html = `<ul class="sidebar-menu">`;
   modules.forEach(m => {
-    html += `<li><a href="${m.link}">${m.label}</a></li>`;
+    const active = (m.key === activeKey) ? "active" : "";
+    html += `<li class="${active}"><a href="${m.link}">${m.label}</a></li>`;
   });
   html += `</ul>`;
 
   side.innerHTML = html;
 }
 
-// Logout
-function logout() {
-  localStorage.removeItem("hrmsUser");
-  window.location.href = "login.html";
+/* -------------------------------
+   UI HELPERS
+--------------------------------*/
+function escapeHtml(str) {
+  return String(str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function setAlert(containerId, type, msg) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!msg) { el.innerHTML = ""; return; }
+  el.innerHTML = `<div class="alert alert-${type}">${escapeHtml(msg)}</div>`;
 }
 
 /* -------------------------------
-   DASHBOARD SCREEN
+   MODAL SYSTEM (CENTERED)
+--------------------------------*/
+let reqModalEl = null;
+
+function openModal(innerHtml, wide = false) {
+  closeReqModal();
+
+  reqModalEl = document.createElement("div");
+  reqModalEl.className = "modal-backdrop";
+  reqModalEl.innerHTML = `
+    <div class="modal ${wide ? "modal-wide" : ""}">
+      ${innerHtml}
+    </div>
+  `;
+  document.body.appendChild(reqModalEl);
+}
+
+function closeReqModal() {
+  if (reqModalEl) {
+    reqModalEl.remove();
+    reqModalEl = null;
+  }
+}
+
+/* -------------------------------
+   DASHBOARD
 --------------------------------*/
 async function loadDashboard() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
-  renderNavbar();
-  renderSidebar();
+  initLayout("dashboard");
 
-  document.getElementById("tiles").innerHTML = `
-    <div class="tile">Welcome, ${user.name}</div>
-  `;
-}
+  const tiles = [];
 
-/* -------------------------------
-   REQUIREMENTS MODULE
---------------------------------*/
+  if (user.role === "EA") {
+    tiles.push({ title: "Raise Requirement", desc: "Create a new requirement for HR validation", href: "requirements.html" });
+  }
 
-// Modal reference (global)
-let reqModal;
+  if (user.role === "HR") {
+    tiles.push({ title: "Validate Requirements", desc: "Review EA submitted requirements", href: "requirements.html" });
+    tiles.push({ title: "Job Posting", desc: "Track where jobs are posted", href: "jobposting.html" });
+  }
 
-// Create modal dynamically
-function buildRequirementModal() {
-  if (reqModal) return;
+  if (user.role === "ADMIN") {
+    tiles.push({ title: "Requirements", desc: "All requirements overview", href: "requirements.html" });
+    tiles.push({ title: "Job Posting", desc: "Manage postings", href: "jobposting.html" });
+  }
 
-  reqModal = document.createElement("div");
-  reqModal.id = "reqModal";
-  reqModal.className = "modal hidden";
-  reqModal.innerHTML = `
-    <div class="modal-content">
-      <span class="close" onclick="closeReqModal()">&times;</span>
-      <h3 id="reqModalTitle">Requirement</h3>
-
-      <label>Job Role Key</label>
-      <select id="reqJobRole"></select>
-
-      <label>Job Title</label>
-      <input id="reqJobTitle" type="text"/>
-
-      <label>Roles & Responsibilities</label>
-      <textarea id="reqRR"></textarea>
-
-      <label>Must Have Skills</label>
-      <textarea id="reqSkills"></textarea>
-
-      <label>Shift</label>
-      <input id="reqShift" type="text"/>
-
-      <label>Pay Scale</label>
-      <input id="reqPay" type="text"/>
-
-      <label>Perks</label>
-      <input id="reqPerks" type="text"/>
-
-      <label>Notes</label>
-      <textarea id="reqNotes"></textarea>
-
-      <button class="btn-primary" onclick="saveRequirement()">Save Requirement</button>
+  const container = document.getElementById("tiles");
+  container.innerHTML = tiles.map(t => `
+    <div class="tile-card" onclick="window.location.href='${t.href}'">
+      <h3>${escapeHtml(t.title)}</h3>
+      <p>${escapeHtml(t.desc)}</p>
     </div>
-  `;
-
-  document.body.appendChild(reqModal);
-}
-
-// Open modal for create
-function openCreateReq() {
-  buildRequirementModal();
-
-  document.getElementById("reqModalTitle").innerText = "Create Requirement";
-
-  loadJobTemplateOptions();
-
-  reqModal.classList.remove("hidden");
-}
-
-// Close modal
-function closeReqModal() {
-  if (reqModal) reqModal.classList.add("hidden");
+  `).join("");
 }
 
 /* -------------------------------
-   REQUIREMENTS DATA LOAD
+   REQUIREMENTS
 --------------------------------*/
-
 async function loadRequirements() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
-  renderNavbar();
-  renderSidebar();
+  initLayout("requirements");
+
+  // Title / sub
+  const titleEl = document.getElementById("pageTitle");
+  const subEl = document.getElementById("pageSub");
+  if (titleEl && subEl) {
+    if (user.role === "HR") {
+      titleEl.textContent = "Requirements for Validation";
+      subEl.textContent = "Review & validate EA requirements";
+    } else {
+      titleEl.textContent = "My Requirements";
+      subEl.textContent = "Create & track requirements";
+    }
+  }
+
+  // EA only: show raise button
+  const btn = document.getElementById("btnRaiseRequirement");
+  if (btn) btn.style.display = (user.role === "EA") ? "inline-flex" : "none";
+
+  setAlert("reqAlert", "", "");
+  const tbl = document.getElementById("reqTable");
+  tbl.innerHTML = `<tr><td class="loading">Loading...</td></tr>`;
 
   const res = await fetchRequirements();
-  if (!res.success) {
-    alert("Error loading requirements");
+  if (!res || !res.success) {
+    tbl.innerHTML = `<tr><td>Error</td></tr>`;
+    setAlert("reqAlert", "error", (res && res.error) ? res.error : "Unable to load requirements");
     return;
   }
 
-  renderRequirementsTable(res.data);
+  let rows = res.data || [];
+
+  // HR view: only SENT_TO_HR / HR_SENDBACK
+  if (user.role === "HR") {
+    rows = rows.filter(r => ["SENT_TO_HR", "HR_SENDBACK"].includes(String(r.Status || "").toUpperCase()));
+  }
+
+  renderRequirementsTable(rows, user.role);
 }
 
-function renderRequirementsTable(list) {
+function statusBadge(status) {
+  const s = String(status || "").toLowerCase();
+  return `<span class="badge status-${s}">${escapeHtml(status || "")}</span>`;
+}
+
+function renderRequirementsTable(list, role) {
   const tbl = document.getElementById("reqTable");
 
+  if (!list.length) {
+    tbl.innerHTML = `
+      <tr><th>Empty</th></tr>
+      <tr><td class="empty-state">No requirements found.</td></tr>
+    `;
+    return;
+  }
+
   let html = `
-    <tr>
-      <th>ID</th>
-      <th>Job Role</th>
-      <th>Job Title</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Job Role</th>
+        <th>Job Title</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
   `;
 
   list.forEach(r => {
     html += `
       <tr>
-        <td>${r.RequirementId}</td>
-        <td>${r.JobRoleKey}</td>
-        <td>${r.JobTitle}</td>
-        <td><span class="badge">${r.Status}</span></td>
+        <td>${escapeHtml(r.RequirementId)}</td>
+        <td>${escapeHtml(r.JobRoleKey)}</td>
+        <td>${escapeHtml(r.JobTitle)}</td>
+        <td>${statusBadge(r.Status)}</td>
         <td>
-          <button class="btn-secondary" onclick='openRequirementDetail(${JSON.stringify(
-            r
-          )})'>View</button>
+          <button class="btn-secondary" onclick='openRequirementDetail(${JSON.stringify(r)})'>View</button>
         </td>
       </tr>
     `;
   });
 
+  html += `</tbody>`;
   tbl.innerHTML = html;
 }
 
-/* -------------------------------
-   VIEW REQUIREMENT
---------------------------------*/
+function openCreateReq() {
+  const inner = `
+    <h3>Raise New Requirement</h3>
 
-function openRequirementDetail(req) {
-  buildRequirementModal();
+    <div class="detail-grid">
+      <div>
+        <label>Job Role Key</label>
+        <select id="reqJobRole"></select>
+      </div>
+      <div>
+        <label>Job Title</label>
+        <input id="reqJobTitle" type="text" placeholder="Job title..." />
+      </div>
+    </div>
 
-  document.getElementById("reqModalTitle").innerText =
-    "Requirement Details – " + req.RequirementId;
+    <label>Roles & Responsibilities</label>
+    <textarea id="reqRR" placeholder="Roles and responsibilities..."></textarea>
 
-  document.getElementById("reqJobRole").innerHTML =
-    `<option>${req.JobRoleKey}</option>`;
+    <label>Must Have Skills</label>
+    <textarea id="reqSkills" placeholder="Must have skills..."></textarea>
 
-  document.getElementById("reqJobTitle").value = req.JobTitle;
-  document.getElementById("reqRR").value = req.RolesAndResponsibilities;
-  document.getElementById("reqSkills").value = req.MustHaveSkills;
-  document.getElementById("reqShift").value = req.Shift;
-  document.getElementById("reqPay").value = req.PayScale;
-  document.getElementById("reqPerks").value = req.Perks;
-  document.getElementById("reqNotes").value = req.Notes;
+    <div class="detail-grid">
+      <div>
+        <label>Shift</label>
+        <input id="reqShift" type="text" placeholder="Day / Night / General" />
+      </div>
+      <div>
+        <label>Pay Scale</label>
+        <input id="reqPay" type="text" placeholder="e.g. 18k-22k" />
+      </div>
+    </div>
 
-  reqModal.classList.remove("hidden");
+    <label>Perks</label>
+    <input id="reqPerks" type="text" placeholder="Perks..." />
+
+    <label>Notes</label>
+    <textarea id="reqNotes" placeholder="Any extra notes..."></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeReqModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveRequirement()">Save as Draft</button>
+      <button class="btn-small" onclick="submitRequirementToHR()">Submit to HR</button>
+    </div>
+  `;
+
+  openModal(inner, true);
+  loadJobTemplateOptions();
 }
 
-/* -------------------------------
-   LOAD JOB TEMPLATES
---------------------------------*/
+function openRequirementDetail(req) {
+  // Use wide modal and show fields neatly
+  const inner = `
+    <h3>Requirement Detail</h3>
+
+    <div class="detail-grid">
+      <div>
+        <label>RequirementId</label>
+        <div class="field-value">${escapeHtml(req.RequirementId)}</div>
+      </div>
+      <div>
+        <label>Status</label>
+        <div class="field-value">${statusBadge(req.Status)}</div>
+      </div>
+      <div>
+        <label>Job Role</label>
+        <div class="field-value">${escapeHtml(req.JobRoleKey)}</div>
+      </div>
+      <div>
+        <label>Job Title</label>
+        <div class="field-value">${escapeHtml(req.JobTitle)}</div>
+      </div>
+    </div>
+
+    <label>Roles & Responsibilities</label>
+    <div class="field-box multi">${escapeHtml(req.RolesAndResponsibilities || "")}</div>
+
+    <label>Must Have Skills</label>
+    <div class="field-box multi">${escapeHtml(req.MustHaveSkills || "")}</div>
+
+    <div class="detail-grid">
+      <div>
+        <label>Shift</label>
+        <div class="field-value">${escapeHtml(req.Shift || "")}</div>
+      </div>
+      <div>
+        <label>Pay Scale</label>
+        <div class="field-value">${escapeHtml(req.PayScale || "")}</div>
+      </div>
+    </div>
+
+    <label>Perks</label>
+    <div class="field-box">${escapeHtml(req.Perks || "")}</div>
+
+    <label>Notes</label>
+    <div class="field-box multi">${escapeHtml(req.Notes || "")}</div>
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeReqModal()">Close</button>
+    </div>
+  `;
+  openModal(inner, true);
+}
 
 async function loadJobTemplateOptions() {
   const res = await fetchJobTemplates();
   const sel = document.getElementById("reqJobRole");
+  if (!sel) return;
 
   sel.innerHTML = `<option value="">Select Role</option>`;
-
-  if (res.success) {
+  if (res && res.success) {
     res.data.forEach(t => {
-      sel.innerHTML += `<option value="${t.JobRoleKey}">${t.JobRoleKey}</option>`;
+      sel.innerHTML += `<option value="${escapeHtml(t.JobRoleKey)}">${escapeHtml(t.JobRoleKey)}</option>`;
     });
+  }
+
+  sel.addEventListener("change", async () => {
+    const roleKey = sel.value;
+    if (!roleKey || !res || !res.success) return;
+
+    const t = (res.data || []).find(x => String(x.JobRoleKey) === String(roleKey));
+    if (!t) return;
+
+    // Autofill
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || "";
+    };
+
+    set("reqJobTitle", t.JobTitle);
+    set("reqRR", t.RolesAndResponsibilities);
+    set("reqSkills", t.MustHaveSkills);
+    set("reqShift", t.Shift);
+    set("reqPay", t.PayScale);
+    set("reqPerks", t.Perks);
+  });
+}
+
+function readReqForm(status) {
+  return {
+    JobRoleKey: document.getElementById("reqJobRole")?.value || "",
+    JobTitle: document.getElementById("reqJobTitle")?.value || "",
+    RolesAndResponsibilities: document.getElementById("reqRR")?.value || "",
+    MustHaveSkills: document.getElementById("reqSkills")?.value || "",
+    Shift: document.getElementById("reqShift")?.value || "",
+    PayScale: document.getElementById("reqPay")?.value || "",
+    Perks: document.getElementById("reqPerks")?.value || "",
+    Notes: document.getElementById("reqNotes")?.value || "",
+    Status: status
+  };
+}
+
+async function saveRequirement() {
+  const data = readReqForm("DRAFT");
+  if (!data.JobRoleKey) { alert("Job Role required"); return; }
+  const res = await createRequirement(data);
+  if (res && res.ok) {
+    alert("Saved as Draft");
+    closeReqModal();
+    loadRequirements();
+  } else {
+    alert("Unable to save requirement");
+  }
+}
+
+async function submitRequirementToHR() {
+  const data = readReqForm("SENT_TO_HR");
+  if (!data.JobRoleKey) { alert("Job Role required"); return; }
+  const res = await createRequirement(data);
+  if (res && res.ok) {
+    alert("Submitted to HR");
+    closeReqModal();
+    loadRequirements();
+  } else {
+    alert("Unable to submit requirement");
   }
 }
 
 /* -------------------------------
-   SAVE REQUIREMENT
+   JOB POSTING
 --------------------------------*/
-
-async function saveRequirement() {
-  const role = document.getElementById("reqJobRole").value;
-  if (!role) {
-    alert("Job Role required");
-    return;
-  }
-
-  const data = {
-    JobRoleKey: role,
-    JobTitle: document.getElementById("reqJobTitle").value,
-    RolesAndResponsibilities: document.getElementById("reqRR").value,
-    MustHaveSkills: document.getElementById("reqSkills").value,
-    Shift: document.getElementById("reqShift").value,
-    PayScale: document.getElementById("reqPay").value,
-    Perks: document.getElementById("reqPerks").value,
-    Notes: document.getElementById("reqNotes").value,
-    Status: "DRAFT"
-  };
-
-  const res = await createRequirement(data);
-
-  if (res.ok) {
-    alert("Requirement saved!");
-    closeReqModal();
-    loadRequirements();
-  } else {
-    alert("Failed to save requirement");
-  }
-}
 async function loadJobPosting() {
   const user = getCurrentUserOrRedirect();
   if (!user) return;
 
-  initLayout();
+  initLayout("jobposting");
 
-  // HR/Admin only
   if (user.role !== "HR" && user.role !== "ADMIN") {
     document.querySelector(".content").innerHTML = "<h2>Access Denied</h2>";
     return;
   }
 
+  setAlert("jpAlert", "", "");
   const table = document.getElementById("jpTable");
-  table.innerHTML = `<tr><td>Loading...</td></tr>`;
+  table.innerHTML = `<tr><td class="loading">Loading...</td></tr>`;
 
   const reqRes = await fetchHRValidRequirements();
   const postRes = await fetchJobPostings();
 
   if (!reqRes || !reqRes.success) {
-    table.innerHTML = `<tr><td>Error: ${(reqRes && reqRes.error) || "Unable to load requirements"}</td></tr>`;
+    setAlert("jpAlert", "error", (reqRes && reqRes.error) ? reqRes.error : "Unable to load requirements");
+    table.innerHTML = `<tr><td>Error</td></tr>`;
     return;
   }
   if (!postRes || !postRes.success) {
-    table.innerHTML = `<tr><td>Error: ${(postRes && postRes.error) || "Unable to load job postings"}</td></tr>`;
+    setAlert("jpAlert", "error", (postRes && postRes.error) ? postRes.error : "Unable to load job postings");
+    table.innerHTML = `<tr><td>Error</td></tr>`;
     return;
   }
 
@@ -325,7 +457,7 @@ async function loadJobPosting() {
   const postings = postRes.data || [];
 
   if (!reqs.length) {
-    table.innerHTML = `<tr><td>No HR_VALID requirements found.</td></tr>`;
+    table.innerHTML = `<tr><th>Empty</th></tr><tr><td class="empty-state">No HR_VALID requirements found.</td></tr>`;
     return;
   }
 
@@ -338,7 +470,7 @@ async function loadJobPosting() {
         <th>RequirementId</th>
         <th>JobRoleKey</th>
         <th>JobTitle</th>
-        <th>Posting Status</th>
+        <th>Posting</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -349,17 +481,11 @@ async function loadJobPosting() {
     const done = isCompleted(r.RequirementId);
     html += `
       <tr>
-        <td>${r.RequirementId}</td>
-        <td>${r.JobRoleKey}</td>
-        <td>${r.JobTitle}</td>
-        <td>
-          <span class="badge ${done ? "status-ok" : "status-pending"}">
-            ${done ? "COMPLETED" : "PENDING"}
-          </span>
-        </td>
-        <td>
-          <button class="btn-small" onclick="openJobPostingModal('${r.RequirementId}')">Manage</button>
-        </td>
+        <td>${escapeHtml(r.RequirementId)}</td>
+        <td>${escapeHtml(r.JobRoleKey)}</td>
+        <td>${escapeHtml(r.JobTitle)}</td>
+        <td><span class="badge ${done ? "status-ok" : "status-pending"}">${done ? "COMPLETED" : "PENDING"}</span></td>
+        <td><button class="btn-small" onclick="openJobPostingModal('${escapeHtml(r.RequirementId)}')">Manage</button></td>
       </tr>
     `;
   });
@@ -369,69 +495,45 @@ async function loadJobPosting() {
 }
 
 function openJobPostingModal(requirementId) {
-  const user = getCurrentUserOrRedirect();
-  if (!user) return;
-
-  // simple portal list (as per your spec)
   const PORTALS = ["Naukri", "Indeed", "Apna", "WorkIndia", "Direct", "Others"];
 
-  // build UI
-  closeReqModal(); // reuse same modal backdrop system
-
-  reqModalEl = document.createElement("div");
-  reqModalEl.className = "modal-backdrop";
-  reqModalEl.innerHTML = `
-    <div class="modal modal-wide">
-      <h3>Manage Job Posting - ${requirementId}</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">
-        Har portal ke liye Posted toggle + Screenshot URL fill karo.
-      </p>
-
-      <div id="portalRows" style="display:grid;gap:10px;"></div>
-
-      <div class="modal-actions">
-        <button class="btn-outline" onclick="closeReqModal()">Close</button>
-        <button class="btn-primary" onclick="saveJobPostingModal('${requirementId}')">Save</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(reqModalEl);
-
-  // render portal rows
-  const container = document.getElementById("portalRows");
-  container.innerHTML = PORTALS.map(p => `
-    <div style="background:#f4f6fb;border-radius:12px;padding:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <b style="font-size:13px;">${p}</b>
-        <label style="display:flex;gap:6px;align-items:center;font-size:12px;">
-          <input type="checkbox" id="posted_${p}" />
-          Posted?
+  const rows = PORTALS.map(p => `
+    <div class="portal-card">
+      <div class="portal-row">
+        <b>${escapeHtml(p)}</b>
+        <label class="toggle">
+          <input type="checkbox" id="posted_${p}">
+          <span>Posted?</span>
         </label>
       </div>
-      <div style="margin-top:8px;">
-        <label style="font-size:12px;font-weight:600;">Screenshot URL</label>
-        <input type="text" id="shot_${p}" placeholder="https://drive.google.com/..." />
-      </div>
+      <label class="small">Screenshot URL</label>
+      <input type="text" id="shot_${p}" placeholder="https://drive.google.com/..." />
     </div>
   `).join("");
+
+  const inner = `
+    <h3>Manage Job Posting</h3>
+    <div class="subtext">Requirement: <b>${escapeHtml(requirementId)}</b></div>
+    <div class="portal-grid">${rows}</div>
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeReqModal()">Close</button>
+      <button class="btn-primary" onclick="saveJobPostingModal('${escapeHtml(requirementId)}')">Save</button>
+    </div>
+  `;
+
+  openModal(inner, true);
 }
 
 async function saveJobPostingModal(requirementId) {
   const PORTALS = ["Naukri", "Indeed", "Apna", "WorkIndia", "Direct", "Others"];
-
-  const portals = PORTALS.map(p => {
-    const isPosted = document.getElementById(`posted_${p}`).checked;
-    const url = document.getElementById(`shot_${p}`).value.trim();
-    return {
-      PortalName: p,
-      IsPosted: isPosted,
-      ScreenshotUrl: url
-    };
-  });
+  const portals = PORTALS.map(p => ({
+    PortalName: p,
+    IsPosted: document.getElementById(`posted_${p}`)?.checked || false,
+    ScreenshotUrl: document.getElementById(`shot_${p}`)?.value?.trim() || ""
+  }));
 
   const res = await saveJobPostings(requirementId, portals);
-
-  // apiPost no-cors → {ok:true} aayega
   if (res && res.ok) {
     alert("Job Posting saved successfully.");
     closeReqModal();
