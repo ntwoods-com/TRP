@@ -601,3 +601,138 @@ async function hrSendBack(requirementId) {
     alert("Unable to send back ❌");
   }
 }
+async function loadCvUpload() {
+  const user = getCurrentUserOrRedirect();
+  if (!user) return;
+
+  initLayout("cvupload");
+
+  if (user.role !== "HR" && user.role !== "ADMIN") {
+    document.querySelector(".content").innerHTML = "<h2>Access Denied</h2>";
+    return;
+  }
+
+  setAlert("cvAlert", "", "");
+
+  // load requirements list (HR_VALID)
+  const res = await fetchHRValidRequirements();
+  const sel = document.getElementById("cvReqSelect");
+  sel.innerHTML = `<option value="">Select requirement</option>`;
+
+  if (!res || !res.success) {
+    setAlert("cvAlert", "error", (res && res.error) || "Unable to load requirements");
+    return;
+  }
+
+  (res.data || []).forEach(r => {
+    sel.innerHTML += `<option value="${escapeHtml(r.RequirementId)}">${escapeHtml(r.RequirementId)} - ${escapeHtml(r.JobTitle || "")}</option>`;
+  });
+
+  sel.addEventListener("change", async () => {
+    if (!sel.value) return;
+    await refreshApplicantsTable(sel.value);
+  });
+}
+
+async function refreshApplicantsTable(requirementId) {
+  const tbl = document.getElementById("cvApplicantsTable");
+  tbl.innerHTML = `<tr><td class="loading">Loading...</td></tr>`;
+
+  const res = await fetchApplicantsByRequirement(requirementId);
+  if (!res || !res.success) {
+    tbl.innerHTML = `<tr><td>Error loading applicants</td></tr>`;
+    return;
+  }
+
+  const list = res.data || [];
+  if (!list.length) {
+    tbl.innerHTML = `<tr><th>Empty</th></tr><tr><td class="empty-state">No applicants uploaded yet.</td></tr>`;
+    return;
+  }
+
+  let html = `
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Mobile</th>
+        <th>Source</th>
+        <th>Stage</th>
+        <th>CV</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+
+  list.forEach(a => {
+    html += `
+      <tr>
+        <td>${escapeHtml(a.CandidateName)}</td>
+        <td>${escapeHtml(a.MobileNumber)}</td>
+        <td>${escapeHtml(a.Source)}</td>
+        <td>${statusBadge(a.CurrentStage)}</td>
+        <td><a href="${escapeHtml(a.CVFileUrl || "#")}" target="_blank">Open</a></td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody>`;
+  tbl.innerHTML = html;
+}
+
+async function startCvUpload() {
+  const reqId = document.getElementById("cvReqSelect").value;
+  const files = document.getElementById("cvFiles").files;
+
+  if (!reqId) { alert("Please select requirement"); return; }
+  if (!files || !files.length) { alert("Please select files"); return; }
+
+  const wrap = document.getElementById("cvProgressWrap");
+  const bar = document.getElementById("cvProgBar");
+  const txt = document.getElementById("cvProgText");
+
+  wrap.style.display = "block";
+  bar.style.width = "0%";
+
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    txt.textContent = `Uploading ${i+1} of ${files.length}: ${f.name}`;
+
+    const fileObj = await fileToBase64Obj(f);
+
+    // send 1-by-1 (stable)
+    const res = await bulkUploadSingleCv(reqId, fileObj);
+
+    // no-cors => res.ok only
+    if (!res || !res.ok) {
+      alert("Upload failed for: " + f.name);
+      break;
+    }
+
+    const pct = Math.round(((i+1) / files.length) * 100);
+    bar.style.width = pct + "%";
+  }
+
+  txt.textContent = "Upload complete ✅";
+  setTimeout(() => { wrap.style.display = "none"; }, 1200);
+
+  // refresh table
+  await refreshApplicantsTable(reqId);
+}
+
+function fileToBase64Obj(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // result: data:...;base64,XXXX
+      const base64 = String(reader.result).split(",")[1];
+      resolve({
+        name: file.name,
+        mimeType: file.type,
+        dataBase64: base64
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
