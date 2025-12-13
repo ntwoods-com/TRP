@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CV Upload - NT Woods HRMS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+  <div id="sidebar"></div>
+
+  <div class="content">
+    <div class="page-head">
+      <div>
+        <h2>Bulk CV Upload</h2>
+        <div class="subtext">Upload multiple CVs for a requirement (HR only)</div>
+      </div>
+    </div>
+
+    <div id="cvAlert"></div>
+
+    <div class="card">
+      <label>Select Requirement (HR_VALID)</label>
+      <select id="cvReqSelect"></select>
+
+      <div class="mt12">
+        <div class="hint">
+          File format: <b>CandidateName_Mobile_Source.pdf</b><br>
+          Example: <b>Rahul_9876543210_Naukri.pdf</b>
+        </div>
+      </div>
+
+      <div class="mt12">
+        <input type="file" id="cvFiles" multiple accept=".pdf,.doc,.docx" />
+      </div>
+
+      <div class="mt12">
+        <button class="btn-primary" onclick="startCvUpload()">Upload CVs</button>
+      </div>
+
+      <div class="mt12">
+        <div id="cvProgressWrap" style="display:none;">
+          <div class="progress-text" id="cvProgText">Uploading...</div>
+          <div class="progress-bar"><div id="cvProgBar"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt16">
+      <h3 style="margin:0 0 10px 0;">Uploaded Applicants (Selected Requirement)</h3>
+      <table id="cvApplicantsTable"></table>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", loadCvUpload);
+  </script>
+</body>
+</html>
