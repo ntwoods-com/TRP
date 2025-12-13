@@ -1,7 +1,7 @@
 /*************************************************
   auth.js - Google GSI callback
 **************************************************/
-const AUTH = { CLIENT_ID: "PASTE_YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com" };
+const AUTH = { CLIENT_ID: "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com" };
 
 function decodeJwt(token){
   return JSON.parse(atob(token.split(".")[1]));
