@@ -12,6 +12,7 @@ async function handleGoogleLogin(response) {
   const res = await fetch(
     GAS_WEB_URL + "?action=login&email=" + encodeURIComponent(user.email)
   );
+
   const backend = await res.json();
 
   if (!backend.success) {
