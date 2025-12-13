@@ -744,3 +744,18 @@ table tbody tr:last-child td {
 .content{ border-top-left-radius: 18px; }
 
 /* Fix badge colors for ok/pending (keep your existing) */
+.hr-action-box{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid #e5e7eb;
+}
+.btn-danger{
+  background:#ef4444;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.btn-danger:hover{ filter: brightness(0.95); }
+
