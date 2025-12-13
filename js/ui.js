@@ -20,6 +20,7 @@ function logout() {
 function initLayout(activeKey = "") {
   renderNavbar();
   renderSidebar(activeKey);
+  modules.push({ key: "cvupload", label: "CV Upload", link: "cvupload.html" });
 }
 
 function renderNavbar() {
