@@ -7,49 +7,45 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
   <div id="navbar"></div>
   <div id="sidebar"></div>
 
   <div class="content">
     <div class="page-head">
       <div>
-        <h2>Bulk CV Upload</h2>
-        <div class="subtext">Upload multiple CVs for a requirement (HR only)</div>
+        <h2>CV Upload</h2>
+        <div class="subtext">Job Posting complete requirements ke liye hi CV upload allowed hai</div>
       </div>
     </div>
 
     <div id="cvAlert"></div>
 
     <div class="card">
-      <label>Select Requirement (HR_VALID)</label>
+      <label>Select Requirement (Job Posting Completed)</label>
       <select id="cvReqSelect"></select>
 
-      <div class="mt12">
-        <div class="hint">
-          File format: <b>CandidateName_Mobile_Source.pdf</b><br>
-          Example: <b>Rahul_9876543210_Naukri.pdf</b>
-        </div>
+      <div class="mt12 hint">
+        File naming: <b>CandidateName_Mobile_Source.pdf</b><br>
+        Example: <b>Rahul_9876543210_Naukri.pdf</b>
       </div>
 
       <div class="mt12">
         <input type="file" id="cvFiles" multiple accept=".pdf,.doc,.docx" />
       </div>
 
-      <div class="mt12">
+      <div class="mt12 row">
         <button class="btn-primary" onclick="startCvUpload()">Upload CVs</button>
+        <button class="btn-outline" onclick="refreshApplicants()">Refresh List</button>
       </div>
 
-      <div class="mt12">
-        <div id="cvProgressWrap" style="display:none;">
-          <div class="progress-text" id="cvProgText">Uploading...</div>
-          <div class="progress-bar"><div id="cvProgBar"></div></div>
-        </div>
+      <div class="mt12" id="cvProgressWrap" style="display:none;">
+        <div class="progress-text" id="cvProgText">Uploading...</div>
+        <div class="progress-bar"><div id="cvProgBar"></div></div>
       </div>
     </div>
 
     <div class="mt16">
-      <h3 style="margin:0 0 10px 0;">Uploaded Applicants (Selected Requirement)</h3>
+      <h3 style="margin:0 0 10px 0;">Applicants (Selected Requirement)</h3>
       <table id="cvApplicantsTable"></table>
     </div>
   </div>
