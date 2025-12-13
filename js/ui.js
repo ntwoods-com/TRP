@@ -20,7 +20,6 @@ function logout() {
 function initLayout(activeKey = "") {
   renderNavbar();
   renderSidebar(activeKey);
-  modules.push({ key: "cvupload", label: "CV Upload", link: "cvupload.html" });
 }
 
 function renderNavbar() {
@@ -59,9 +58,11 @@ function renderSidebar(activeKey = "") {
   modules.push({ key: "requirements", label: "Requirements", link: "requirements.html" });
 
   // HR/Admin
-  if (user.role === "HR" || user.role === "ADMIN") {
-    modules.push({ key: "jobposting", label: "Job Posting", link: "jobposting.html" });
-  }
+  // HR/Admin
+if (user.role === "HR" || user.role === "ADMIN") {
+  modules.push({ key: "jobposting", label: "Job Posting", link: "jobposting.html" });
+  modules.push({ key: "cvupload", label: "CV Upload", link: "cvupload.html" }); // ✅ yahin add
+}
 
   let html = `<ul class="sidebar-menu">`;
   modules.forEach(m => {
