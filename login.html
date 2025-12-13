@@ -3,30 +3,21 @@
 <head>
   <title>NT Woods HRMS - Login</title>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="login-body">
 
   <div class="login-card">
-    <div class="login-brand">
-      <div class="brand-dot"></div>
-      <h2>NT Woods HRMS</h2>
-    </div>
-
-    <p class="muted">Sign in with your Google Account</p>
-
+    <h2>NT Woods HRMS</h2>
+    <p>Sign in with your Google Account</p>
     <div id="gSignInDiv"></div>
-
-    <div class="login-foot muted">
-      If you are not registered, contact Admin to enable access.
-    </div>
   </div>
 
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
+    // 👇 yahan apna real OAuth Client ID daalo
     const HRMS_CLIENT_ID = "1029752642188-ku0k9krbdbsttj9br238glq8h4k5loj3.apps.googleusercontent.com";
 
     window.addEventListener("load", function () {
@@ -43,7 +34,7 @@
 
       google.accounts.id.renderButton(
         document.getElementById("gSignInDiv"),
-        { theme: "outline", size: "large", shape: "pill", width: 320 }
+        { theme: "outline", size: "large" }
       );
     });
   </script>
