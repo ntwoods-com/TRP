@@ -294,7 +294,15 @@ function openCreateReq() {
 }
 
 function openRequirementDetail(req) {
-  // Use wide modal and show fields neatly
+  const user = getCurrentUserOrRedirect();
+  if (!user) return;
+
+  const isHR = (user.role === "HR" || user.role === "ADMIN");
+  const status = String(req.Status || "").toUpperCase();
+
+  // HR can act only on these
+  const canAct = isHR && (status === "SENT_TO_HR" || status === "HR_SENDBACK");
+
   const inner = `
     <h3>Requirement Detail</h3>
 
@@ -309,11 +317,11 @@ function openRequirementDetail(req) {
       </div>
       <div>
         <label>Job Role</label>
-        <div class="field-value">${escapeHtml(req.JobRoleKey)}</div>
+        <div class="field-value">${escapeHtml(req.JobRoleKey || "")}</div>
       </div>
       <div>
         <label>Job Title</label>
-        <div class="field-value">${escapeHtml(req.JobTitle)}</div>
+        <div class="field-value">${escapeHtml(req.JobTitle || "")}</div>
       </div>
     </div>
 
@@ -340,10 +348,24 @@ function openRequirementDetail(req) {
     <label>Notes</label>
     <div class="field-box multi">${escapeHtml(req.Notes || "")}</div>
 
-    <div class="modal-actions">
-      <button class="btn-outline" onclick="closeReqModal()">Close</button>
-    </div>
+    ${canAct ? `
+      <div class="hr-action-box">
+        <label>HR Remark (Send Back ke liye mandatory)</label>
+        <textarea id="hrRemark" placeholder="Reason / correction points..." rows="3">${escapeHtml(req.HRRemark || "")}</textarea>
+
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="closeReqModal()">Close</button>
+          <button class="btn-danger" onclick="hrSendBack('${escapeHtml(req.RequirementId)}')">Send Back</button>
+          <button class="btn-primary" onclick="hrMarkValid('${escapeHtml(req.RequirementId)}')">Mark as Valid</button>
+        </div>
+      </div>
+    ` : `
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeReqModal()">Close</button>
+      </div>
+    `}
   `;
+
   openModal(inner, true);
 }
 
@@ -540,5 +562,42 @@ async function saveJobPostingModal(requirementId) {
     loadJobPosting();
   } else {
     alert("Failed to save job posting.");
+  }
+}
+async function hrMarkValid(requirementId) {
+  const res = await updateRequirementStatus({
+    RequirementId: requirementId,
+    Status: "HR_VALID",
+    HRRemark: document.getElementById("hrRemark")?.value?.trim() || ""
+  });
+
+  if (res && res.ok) {
+    alert("Requirement marked as HR_VALID ✅");
+    closeReqModal();
+    loadRequirements();
+  } else {
+    alert("Unable to mark valid ❌");
+  }
+}
+
+async function hrSendBack(requirementId) {
+  const remark = document.getElementById("hrRemark")?.value?.trim() || "";
+  if (!remark) {
+    alert("HR Remark is mandatory for Send Back.");
+    return;
+  }
+
+  const res = await updateRequirementStatus({
+    RequirementId: requirementId,
+    Status: "HR_SENDBACK",
+    HRRemark: remark
+  });
+
+  if (res && res.ok) {
+    alert("Requirement sent back to EA ✅");
+    closeReqModal();
+    loadRequirements();
+  } else {
+    alert("Unable to send back ❌");
   }
 }
