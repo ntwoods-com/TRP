@@ -109,3 +109,24 @@ async function updateRequirementStatus(data) {
   const payload = Object.assign({}, data, { email: user.email });
   return apiPost("update_requirement_status", payload);
 }
+/* ---------- Job Posting APIs ---------- */
+
+async function fetchHRValidRequirements() {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = "login.html"; return; }
+  return apiGet("list_hr_valid_requirements", { email: user.email });
+}
+
+async function fetchJobPostings() {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = "login.html"; return; }
+  return apiGet("list_job_postings", { email: user.email });
+}
+
+async function saveJobPostings(requirementId, portals) {
+  return apiPost("save_job_postings", {
+    RequirementId: requirementId,
+    portals: portals
+  });
+}
+
