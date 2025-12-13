@@ -109,3 +109,20 @@ async function fetchJobPostings() {
 async function saveJobPostings(requirementId, portals) {
   return apiPost("save_job_postings", { RequirementId: requirementId, portals });
 }
+async function fetchApplicantsByRequirement(requirementId) {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = "login.html"; return; }
+  return apiGet("list_applicants_by_requirement", { email: user.email, requirementId });
+}
+
+async function bulkUploadSingleCv(requirementId, fileObj) {
+  const user = getCurrentUser();
+  if (!user) { window.location.href = "login.html"; return; }
+
+  // NOTE: agar tumhara POST CORS allow karta hai, to apiPost me mode:no-cors hatake JSON read kar sakte ho.
+  // abhi stable mode => no-cors, response opaque; but backend actual save karega.
+  return apiPost("bulk_upload_cvs", {
+    RequirementId: requirementId,
+    file: fileObj
+  });
+}
