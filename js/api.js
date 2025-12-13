@@ -52,63 +52,46 @@ async function apiPost(action, body = {}) {
     await fetch(GAS_WEB_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    // no-cors me response read nahi hota → hum manually success message return karenge
+    // no-cors me response read nahi hota
     return { ok: true };
   } catch (err) {
+    console.error("apiPost error", err);
     return { ok: false };
   }
 }
-
 
 /* ---------- Requirements APIs ---------- */
 
 async function fetchRequirements() {
   const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
+  if (!user) { window.location.href = "login.html"; return; }
   return apiGet("list_requirements", { email: user.email });
 }
 
 async function fetchJobTemplates() {
   const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
+  if (!user) { window.location.href = "login.html"; return; }
   return apiGet("list_job_templates", { email: user.email });
 }
 
 async function createRequirement(data) {
   const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
+  if (!user) { window.location.href = "login.html"; return; }
   const payload = Object.assign({}, data, { email: user.email });
   return apiPost("create_requirement", payload);
 }
 
 async function updateRequirementStatus(data) {
   const user = getCurrentUser();
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
+  if (!user) { window.location.href = "login.html"; return; }
   const payload = Object.assign({}, data, { email: user.email });
   return apiPost("update_requirement_status", payload);
 }
+
 /* ---------- Job Posting APIs ---------- */
 
 async function fetchHRValidRequirements() {
@@ -124,9 +107,5 @@ async function fetchJobPostings() {
 }
 
 async function saveJobPostings(requirementId, portals) {
-  return apiPost("save_job_postings", {
-    RequirementId: requirementId,
-    portals: portals
-  });
+  return apiPost("save_job_postings", { RequirementId: requirementId, portals });
 }
-
