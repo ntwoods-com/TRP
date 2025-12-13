@@ -682,3 +682,65 @@ table tbody tr:last-child td {
 .badge.status-ok { background:#dcfce7; color:#166534; }
 .badge.status-pending { background:#fef9c3; color:#854d0e; }
 
+
+
+/* Page header */
+.page-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.page-actions{ display:flex; gap:10px; align-items:center; }
+.subtext{ color:#6b7280; font-size:13px; margin-top:6px; }
+.btn-link{
+  background: transparent;
+  color:#111827;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:13px;
+  border: 1px solid #e5e7eb;
+}
+.btn-link:hover{ background:#f3f4f6; }
+
+/* Portal cards in Job Posting modal */
+.portal-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap:12px;
+  margin-top:14px;
+}
+.portal-card{
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:12px;
+}
+.portal-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.portal-card .small{
+  font-size:11px;
+  color:#6b7280;
+  margin:0 0 6px 0;
+}
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:#374151;
+}
+
+/* Small button look */
+.btn-small{ display:inline-flex; align-items:center; justify-content:center; }
+
+/* Improve body bg inside app area */
+.content{ border-top-left-radius: 18px; }
+
+/* Fix badge colors for ok/pending (keep your existing) */
